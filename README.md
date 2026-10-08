@@ -55,11 +55,14 @@ docker run --rm -it -p 127.0.0.1:8080:8080 --entrypoint bash -v "$(pwd)/app:/app
 ```
 
 You will then need to manually run the two commands within `/entrypoint.sh`. The first starts the DB in the background whereas the second compiles and runs the application. Typically a container shouldn't have multiple services but this was done for convenience.
-## Palabra Viva (Spanish vocabulary dashboard)
+## Palabra Viva (Spanish vocabulary app)
 
-A self-contained, interactive dashboard (in Spanish) for learning everyday vocabulary and expressions from Spain and Latin America:
-flashcards with spaced repetition, quizzes, a "¿Dónde se dice?" region game, a daily "use it today" mission, and a sentence diary.
-Progress is saved in the browser (`localStorage`).
+An interactive app (in Spanish) for learning everyday vocabulary and expressions from Spain and 14 Latin American countries
+(México, Argentina, Uruguay, Colombia, Venezuela, Chile, Perú, Ecuador, Cuba, Puerto Rico, República Dominicana, Costa Rica, El Salvador, Guatemala).
 
-* Served by the app at `/resources/espanol/index.html`
-* Or open `app/src/main/webapp/resources/espanol/index.html` directly in a browser.
+* Choose your variant: España, Latinoamérica, or both. Flashcards, quiz and daily words adapt to it.
+* Flashcards with spaced repetition, quizzes, a region/country guessing game, daily "use it today" missions and a sentence diary.
+* Installable as an app (web manifest + offline service worker) and shareable by link. Progress is stored in the browser, with a copy/import code to move it between devices.
+
+Files live in `app/src/main/webapp/resources/espanol/`. The app serves the page at `/resources/espanol/index.html`.
+To install it on a phone, host that folder over HTTPS (for example with GitHub Pages) and use "Add to Home Screen".

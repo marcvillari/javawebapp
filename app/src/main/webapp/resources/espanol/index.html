@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1D4DB3">
+<meta name="description" content="Aprende vocabulario y expresiones del español de España y Latinoamérica.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Palabra Viva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -210,6 +216,47 @@ textarea.input{min-height:120px; resize:vertical}
 .toast.show{opacity:1; transform:translate(-50%,0)}
 .foot{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; font-size:.85rem; color:var(--muted); border-top:1px solid var(--line); padding-top:16px}
 
+/* App chrome: header actions, bottom nav, sheets */
+.actions{display:flex; gap:6px; align-items:center}
+.icon-btn{width:38px; height:38px; padding:0; border-radius:10px; display:inline-grid; place-items:center; border:1px solid var(--line); background:var(--surface); cursor:pointer}
+.icon-btn:hover{background:var(--surface-2)}
+.icon-btn svg{width:19px; height:19px}
+.variant-pill{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:4px 10px; font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap}
+.variant-pill:hover{background:var(--surface-2)}
+.bnav{display:none}
+.scrim{position:fixed; inset:0; z-index:20; background:rgba(8,14,26,.55); display:grid; place-items:center; padding:16px; overflow:auto}
+.sheet{background:var(--surface); color:var(--ink); border-radius:20px; width:100%; max-width:560px; padding:24px; display:grid; gap:18px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-height:calc(100% - 8px); overflow:auto}
+.sheet h2{font-size:1.6rem; font-weight:800; letter-spacing:-.02em}
+.sheet-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
+.choices{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px}
+.choice{border:1.5px solid var(--line); background:var(--surface); border-radius:14px; padding:14px 12px; text-align:left; cursor:pointer; display:grid; gap:4px}
+.choice:hover{border-color:var(--cobalt)}
+.choice b{font-family:var(--f-display); font-size:1.1rem}
+.choice span{font-size:.8rem; color:var(--muted)}
+.choice .sw{height:6px; border-radius:3px; margin-bottom:6px}
+.choice[aria-pressed="true"]{border-color:var(--cobalt); background:var(--cobalt-soft)}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; padding:3px; gap:3px; background:var(--surface-2); flex-wrap:wrap}
+.seg button{border:0; background:transparent; padding:6px 12px; border-radius:7px; font-weight:600; font-size:.88rem; cursor:pointer; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:var(--shadow)}
+.set-row{display:grid; gap:8px; padding-top:14px; border-top:1px solid var(--line)}
+.set-row h3{font-family:var(--f-body); font-size:.95rem; font-weight:700}
+.countries{display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:8px; margin-top:16px}
+.ctry{display:flex; justify-content:space-between; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:var(--jade-soft); font-size:.82rem}
+.ctry b{font-family:var(--f-mono); font-size:.78rem; color:var(--jade)}
+.where.four{grid-template-columns:1fr 1fr}
+.where.four .opt{padding:16px 10px; font-size:1.1rem}
+
+@media (max-width: 700px){
+  nav.tabs{display:none}
+  .bnav{display:grid; grid-template-columns:repeat(6,1fr); position:fixed; left:0; right:0; bottom:0; z-index:8; background:var(--surface); border-top:1px solid var(--line); padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+  .bnav button{border:0; background:none; display:grid; justify-items:center; gap:2px; padding:6px 0; font-size:.66rem; font-weight:700; color:var(--muted); cursor:pointer; position:relative}
+  .bnav button svg{width:22px; height:22px}
+  .bnav button[aria-selected="true"]{color:var(--cobalt)}
+  .bnav .badge{position:absolute; top:0; left:calc(50% + 6px); min-width:16px; padding:0 4px; border-radius:999px; background:var(--cobalt); color:var(--on-accent); font-size:.6rem; line-height:16px; font-family:var(--f-mono)}
+  main{padding-bottom:110px}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .choices{grid-template-columns:1fr}
+}
 @media (max-width: 860px){
   .c7,.c5,.c6{grid-column:span 12}
   .study,.diary{grid-template-columns:1fr}
@@ -219,6 +266,8 @@ textarea.input{min-height:120px; resize:vertical}
 }
 @media (max-width: 520px){
   .brand small{display:none}
+  .chip.xp{display:none}
+  .brand h1{font-size:1.35rem}
   .opts{grid-template-columns:1fr}
   .flash{padding:20px; min-height:300px}
   .panel{padding:16px}
@@ -232,9 +281,12 @@ textarea.input{min-height:120px; resize:vertical}
   <div class="tiles" aria-hidden="true"></div>
   <div class="wrap bar">
     <div class="brand"><h1>Palabra <span>Viva</span></h1><small>Español de España y Latinoamérica</small></div>
-    <div class="chips">
-      <span class="chip fire" title="Días seguidos practicando"><i></i>Racha <b id="hdStreak">0</b></span>
-      <span class="chip" title="Puntos de hoy">XP <b id="hdXp">0</b></span>
+    <div class="actions">
+      <button class="variant-pill" id="variantPill" title="Cambiar el español que practicas">Ambos</button>
+      <span class="chip fire" title="Días seguidos practicando"><i></i><b id="hdStreak">0</b></span>
+      <span class="chip xp" title="Puntos de hoy">XP <b id="hdXp">0</b></span>
+      <button class="icon-btn" id="shareBtn" aria-label="Compartir la app" title="Compartir la app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Ajustes" title="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
     </div>
   </div>
   <div class="wrap">
@@ -293,7 +345,7 @@ textarea.input{min-height:120px; resize:vertical}
       <p class="par" id="wodPar"></p>
       <div class="row" style="margin-top:16px">
         <button class="btn primary" id="wodWrite">Escribir una frase con ella</button>
-        <button class="btn" data-go="tarjetas">Repasar tarjetas</button>
+        <button class="btn" id="wodShare">Compartir palabra</button>
       </div>
     </article>
 
@@ -383,7 +435,7 @@ textarea.input{min-height:120px; resize:vertical}
 <section class="view" id="view-vocabulario" role="tabpanel" hidden>
   <div class="filters">
     <input id="fSearch" class="input search" type="search" placeholder="Buscar en español o inglés…" aria-label="Buscar">
-    <select id="fReg" class="input" aria-label="Región"><option value="">Todas las regiones</option><option value="es">España</option><option value="la">Latinoamérica</option><option value="all">Todo el mundo hispano</option></select>
+    <select id="fReg" class="input" aria-label="Región"></select>
     <select id="fCat" class="input" aria-label="Categoría"></select>
     <select id="fStat" class="input" aria-label="Estado"><option value="">Cualquier estado</option><option value="nueva">Nuevas</option><option value="aprendiendo">Aprendiendo</option><option value="dominada">Dominadas</option></select>
   </div>
@@ -392,16 +444,48 @@ textarea.input{min-height:120px; resize:vertical}
 </section>
 
 <div class="foot">
-  <span>Tu progreso se guarda en este navegador.</span>
-  <button class="btn sm ghost" id="resetBtn">Borrar mi progreso</button>
+  <span>Tu progreso se guarda en este navegador. Ábrelo desde el mismo dispositivo para continuar.</span>
+  <button class="btn sm ghost" data-open="settings">Ajustes y copia de seguridad</button>
 </div>
 </main>
+<nav class="bnav" aria-label="Secciones">
+  <button data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>Inicio</span></button>
+  <button data-tab="tarjetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg><span>Tarjetas</span><span class="badge" id="dueBadge2">0</span></button>
+  <button data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h0"/></svg><span>Quiz</span></button>
+  <button data-tab="donde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Regiones</span></button>
+  <button data-tab="diario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13 7 4 4"/></svg><span>Diario</span></button>
+  <button data-tab="vocabulario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg><span>Palabras</span></button>
+</nav>
+<div class="scrim" id="onboard" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="obTitle">
+    <div><span class="eyebrow">Bienvenida a Palabra Viva</span><h2 id="obTitle" style="margin-top:6px">¿Qué español quieres hablar?</h2>
+    <p class="muted" style="margin-top:8px">Elige tu variante. Las tarjetas, el quiz y las palabras del día se adaptan. Puedes cambiarla cuando quieras.</p></div>
+    <div class="choices" id="obChoices"></div>
+    <div class="field"><span class="eyebrow">Tu meta diaria</span><div class="seg" id="obGoal"></div></div>
+    <button class="btn primary" id="obStart">Empezar a aprender</button>
+  </div>
+</div>
+<div class="scrim" id="settings" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="sheet-head"><h2 id="setTitle">Ajustes</h2><button class="icon-btn" id="setClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="field"><span class="eyebrow">Español que practicas</span><div class="choices" id="setChoices"></div></div>
+    <div class="set-row"><h3>Meta diaria</h3><div class="seg" id="setGoal"></div></div>
+    <div class="set-row"><h3>Compartir</h3><p class="muted" style="font-size:.88rem">Copia el enlace y mándaselo a quien quieras. Cada persona tiene su propio progreso.</p>
+      <div class="row"><input class="input" id="shareUrl" readonly style="flex:1; min-width:0" aria-label="Enlace de la app"><button class="btn primary sm" id="copyLink">Copiar enlace</button></div></div>
+    <div class="set-row"><h3>Llevar tu progreso a otro dispositivo</h3><p class="muted" style="font-size:.88rem">Copia tu código aquí y pégalo en «Importar» en el otro navegador.</p>
+      <div class="row"><button class="btn sm" id="copyCode">Copiar mi código</button></div>
+      <textarea class="input" id="importCode" placeholder="Pega aquí un código de progreso" style="min-height:70px"></textarea>
+      <div class="row"><button class="btn sm" id="importBtn">Importar progreso</button><span id="importMsg" class="muted" style="font-size:.85rem"></span></div></div>
+    <div class="set-row"><h3>Empezar de cero</h3><div class="row"><button class="btn sm" id="resetBtn">Borrar mi progreso</button></div></div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ---------- Datos ---------- */
-const REG = {ES:"España",MX:"México",AR:"Argentina",CO:"Colombia",CL:"Chile",PE:"Perú",CR:"Costa Rica",LA:"Latinoamérica",ALL:"Todo el mundo hispano"};
-const LANG = {ES:"es-ES",MX:"es-MX",AR:"es-AR",CO:"es-CO",CL:"es-CL",PE:"es-PE",CR:"es-CR",LA:"es-MX",ALL:"es-ES"};
+const REG = {ES:"España",MX:"México",AR:"Argentina",UY:"Uruguay",CO:"Colombia",VE:"Venezuela",CL:"Chile",PE:"Perú",EC:"Ecuador",CU:"Cuba",PR:"Puerto Rico",DO:"República Dominicana",CR:"Costa Rica",SV:"El Salvador",GT:"Guatemala",LA:"Latinoamérica",ALL:"Todo el mundo hispano"};
+const LANG = {ES:"es-ES",MX:"es-MX",AR:"es-AR",UY:"es-UY",CO:"es-CO",VE:"es-VE",CL:"es-CL",PE:"es-PE",EC:"es-EC",CU:"es-US",PR:"es-US",DO:"es-DO",CR:"es-CR",SV:"es-SV",GT:"es-GT",LA:"es-MX",ALL:"es-ES"};
+const COUNTRIES = ["MX","AR","UY","CO","VE","CL","PE","EC","CU","PR","DO","CR","SV","GT"];
 // [palabra, inglés, definición, ejemplo con *marca*, región, categoría, equivalente en la otra orilla]
 const RAW = [
 ["guay","cool","Algo que está muy bien o que te gusta.","Tu chaqueta nueva es muy *guay*.","ES","Jerga","En Latinoamérica: chévere (CO), padre o chido (MX), bacán (CL)"],
@@ -473,7 +557,61 @@ const RAW = [
 ["carro","car","Vehículo de cuatro ruedas.","Dejé el *carro* en el estacionamiento.","LA","Vida diaria","En España: coche"],
 ["ustedes","you all","Segunda persona del plural, formal e informal.","¿*Ustedes* vienen a la fiesta?","LA","Gramática","En España: vosotros (informal)"],
 ["departamento","apartment","Vivienda dentro de un edificio.","Rentamos un *departamento* en el centro.","LA","Vida diaria","En España: piso"],
-["papa","potato","Tubérculo básico de la cocina.","Una porción de *papas* fritas, por favor.","LA","Comida y bebida","En España: patata"]
+["papa","potato","Tubérculo básico de la cocina.","Una porción de *papas* fritas, por favor.","LA","Comida y bebida","En España: patata"],
+["plata","money","Dinero, en casi toda Latinoamérica.","No me alcanza la *plata* para el viaje.","LA","Trabajo y dinero","En España: dinero, pasta"],
+["dale","OK, let's go","Para aceptar un plan o animar a alguien.","—¿Vamos a la playa? —¡*Dale*!","LA","Expresiones","En España: vale, venga"],
+["buena onda","good vibes, nice","Persona agradable o ambiente positivo.","Tu jefa es muy *buena onda*.","LA","Jerga","En España: maja, buen rollo"],
+["lentes","glasses","Gafas para ver mejor.","No encuentro mis *lentes*.","LA","Vida diaria","En España: gafas"],
+["boleto","ticket","Billete de transporte o entrada.","Ya compré el *boleto* de avión.","LA","Vida diaria","En España: billete (transporte), entrada (espectáculo)"],
+["estacionar","to park","Dejar el carro en un lugar.","¿Dónde puedo *estacionar*?","LA","Vida diaria","En España: aparcar"],
+["acá","here","Aquí. Se usa muchísimo en Latinoamérica.","Vení *acá*, te quiero mostrar algo.","LA","Gramática","En España: aquí"],
+["frijoles","beans","Legumbre básica de la cocina latinoamericana.","Arroz con *frijoles*, el plato de siempre.","LA","Comida y bebida","En España: alubias, judías. En Argentina y Chile: porotos"],
+["¡No manches!","No way!","Expresión de sorpresa o incredulidad.","¿Te ganaste la rifa? ¡*No manches*!","MX","Expresiones","En España: ¡No me digas!, ¡Qué fuerte!"],
+["¿Neta?","For real?","Para preguntar si algo es verdad.","¿*Neta* te mudas a Monterrey?","MX","Expresiones","En España: ¿En serio?"],
+["¡Órale!","Wow! / Let's go!","Sirve para aceptar, animar o mostrar sorpresa.","¡*Órale*! Vamos al cine.","MX","Expresiones","En España: ¡Venga!, ¡Hala!"],
+["sale","deal, OK","Para aceptar un plan.","—¿Nos vemos a las cinco? —*Sale*.","MX","Expresiones","En España: vale"],
+["cuate","buddy","Amigo cercano.","Voy a cenar con mis *cuates*.","MX","Jerga","En España: colega, amigo"],
+["camión","city bus","Autobús urbano, en México.","Tomo el *camión* para ir a la escuela.","MX","Vida diaria","En España: autobús. En Argentina: colectivo"],
+["estar crudo","to be hungover","Sentirse mal después de beber de más.","No puedo ir, *estoy crudo*.","MX","Expresiones","En España: tener resaca. En Colombia: tener guayabo"],
+["popote","drinking straw","Tubito para beber.","Una limonada sin *popote*, por favor.","MX","Comida y bebida","En España: pajita"],
+["alberca","swimming pool","Piscina.","El hotel tiene *alberca*.","MX","Vida diaria","En España: piscina. En Argentina: pileta"],
+["rentar","to rent","Alquilar.","Queremos *rentar* un carro para el viaje.","MX","Vida diaria","En España: alquilar"],
+["boliche","nightclub","Discoteca.","El sábado vamos al *boliche*.","AR","Vida diaria","En España: discoteca"],
+["quilombo","mess","Lío, desorden o problema grande. Muy coloquial.","Mi cuarto es un *quilombo*.","AR","Jerga","En España: lío, follón"],
+["fiaca","laziness","Pereza, ganas de no hacer nada.","Hoy tengo una *fiaca* tremenda.","AR","Emociones","En España: pereza"],
+["mango","peso (money)","Dinero; un peso.","Estoy sin un *mango* hasta fin de mes.","AR","Trabajo y dinero","En España: no tener un duro"],
+["colectivo","city bus","Autobús urbano, en Argentina.","El *colectivo* pasa cada diez minutos.","AR","Vida diaria","En España: autobús"],
+["vos sos","you are (voseo)","En Argentina y Uruguay se usa vos en lugar de tú, con formas propias: vos sos, vos tenés, vos querés.","*Vos sos* muy buena onda.","AR","Gramática","En España: tú eres"],
+["ta","OK","Forma corta de está bien; muy uruguaya.","—¿Mañana a las nueve? —*Ta*.","UY","Expresiones","En España: vale"],
+["bo","hey","Para llamar a alguien o como muletilla.","*Bo*, ¿vamos a la rambla?","UY","Saludos","En España: oye, tío"],
+["¡Qué chimba!","How awesome!","Exclamación colombiana para algo genial. Informal.","¡*Qué chimba* de viaje!","CO","Jerga","En España: ¡Qué pasada!"],
+["guayabo","hangover","Malestar después de beber de más.","Tengo un *guayabo* terrible.","CO","Expresiones","En España: resaca"],
+["camellar","to work hard","Trabajar, sobre todo duro.","Toca *camellar* todo el fin de semana.","CO","Trabajo y dinero","En España: currar"],
+["¿Me regala...?","Could I have...?","Fórmula cortés para pedir en una tienda. No significa gratis.","¿*Me regala* un tinto, por favor?","CO","Expresiones","En España: ¿Me pone...?"],
+["berraco","tough, a go-getter","Persona valiente o muy capaz.","Tu hermana es muy *berraca*.","CO","Jerga","En España: crack, echado para adelante"],
+["pana","buddy","Amigo de confianza.","Él es mi *pana* de toda la vida.","VE","Jerga","En España: colega. También en Ecuador y Panamá."],
+["chamo, chama","kid; guy, girl","Chico o chica; también se usa entre amigos.","¿Qué pasó, *chamo*?","VE","Jerga","En España: chaval, tío"],
+["¡Qué fino!","Awesome!","Exclamación para algo que salió muy bien.","¿Conseguiste las entradas? ¡*Qué fino*!","VE","Expresiones","En España: ¡Qué guay!"],
+["fome","boring","Aburrido, sin gracia.","La película estuvo *fome*.","CL","Emociones","En España: un rollo, aburrido"],
+["carrete","party, night out","Fiesta o salida nocturna.","¿Hay *carrete* este viernes?","CL","Vida diaria","En España: fiesta, juerga"],
+["luca","a thousand pesos","Billete o cantidad de mil pesos.","¿Me prestas una *luca*?","CL","Trabajo y dinero","En España: mil (no hay equivalente exacto). También en Argentina y Colombia."],
+["cuático","wild, intense","Algo exagerado o impresionante.","Lo que pasó ayer fue *cuático*.","CL","Jerga","En España: una pasada, flipante"],
+["pata","pal","Amigo.","Es mi *pata* del colegio.","PE","Jerga","En España: colega"],
+["jato","house, place","Casa, en lenguaje coloquial.","Vamos a mi *jato* a ver el partido.","PE","Vida diaria","En España: casa"],
+["palta","avocado","El fruto verde del guacamole.","Pan con *palta* para desayunar.","PE","Comida y bebida","En España y México: aguacate. También en Chile y Argentina."],
+["¿Qué fue?","What's up?","Saludo informal ecuatoriano.","¡*Qué fue*, loco! ¿Cómo estás?","EC","Saludos","En España: ¿Qué pasa?, ¿Qué tal?"],
+["¡Chuta!","Shoot!","Expresa sorpresa o fastidio.","¡*Chuta*! Se me olvidaron las llaves.","EC","Expresiones","En España: ¡Vaya!, ¡Jo!"],
+["asere","buddy","Amigo, compañero.","¿Qué bolá, *asere*?","CU","Jerga","En España: tío, colega"],
+["¿Qué bolá?","What's up?","Saludo informal cubano.","¡Ey! ¿*Qué bolá*?","CU","Saludos","En España: ¿Qué pasa?"],
+["guagua","bus","Autobús, en el Caribe y en Canarias.","La *guagua* viene llena.","CU","Vida diaria","En la Península: autobús. También en Puerto Rico y República Dominicana."],
+["janguear","to hang out","Salir a divertirse con amigos (del inglés hang out).","Vamos a *janguear* en el Viejo San Juan.","PR","Vida diaria","En España: salir, quedar"],
+["chavos","money","Dinero.","No tengo *chavos* este mes.","PR","Trabajo y dinero","En España: pasta"],
+["vaina","thing, stuff","Cualquier cosa; comodín de la conversación.","Pásame esa *vaina*.","DO","Jerga","En España: cosa, chisme. También en Venezuela y Colombia."],
+["¿Qué lo que?","What's up?","Saludo informal dominicano.","Ey, mi pana, ¿*qué lo que*?","DO","Saludos","En España: ¿Qué pasa?"],
+["mae","dude","Forma muy tica de llamar a alguien.","*Mae*, ¿vamos a la playa?","CR","Jerga","En España: tío"],
+["tuanis","cool","Algo que está muy bien.","El concierto estuvo *tuanis*.","CR","Jerga","En España: guay"],
+["chivo","cool, great","Bueno o bonito.","Tu carro está bien *chivo*.","SV","Jerga","En España: chulo, guay"],
+["patojo","kid","Niño o joven.","Los *patojos* están jugando fútbol.","GT","Jerga","En España: chaval, crío"]
 ];
 const slug = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const V = RAW.map(r => ({id:slug(r[0]), es:r[0], en:r[1], def:r[2], ej:r[3], reg:r[4], cat:r[5], par:r[6]}));
@@ -484,10 +622,12 @@ const ZONE = {es:"España", la:"Latinoamérica", all:"Todo el mundo hispano"};
 /* ---------- Estado ---------- */
 const KEY = "palabraViva.v1", DAY = 864e5, IV = [0,1,3,7,14,30], NEW_PER_DAY = 10, ROUND = 10;
 const dk = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-function fresh(){ return {cards:{}, xp:{}, quiz:{r:0,t:0}, region:{r:0,t:0}, diary:[], mission:null, goal:50, newDay:{d:"",n:0}}; }
+function fresh(){ return {cards:{}, xp:{}, quiz:{r:0,t:0}, region:{r:0,t:0}, diary:[], mission:null, goal:50, newDay:{d:"",n:0}, variant:"both", onboarded:false, whereMode:null}; }
 function load(){ let d = null; try { d = JSON.parse(localStorage.getItem(KEY)); } catch(e){} return Object.assign(fresh(), d || {}); }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 let S = load();
+const VARIANTS = {es:{name:"España", short:"España", desc:"Vosotros, coche, móvil, guay…", col:"var(--cobalt)"}, la:{name:"Latinoamérica", short:"Latam", desc:"Ustedes, carro, celular, chévere… de México a Argentina", col:"var(--jade)"}, both:{name:"Los dos", short:"Ambos", desc:"Entiende a todo el mundo hispano", col:"var(--saffron)"}};
+const pool = () => S.variant === "es" ? V.filter(w => zone(w.reg) !== "la") : S.variant === "la" ? V.filter(w => zone(w.reg) !== "es") : V;
 
 /* ---------- Utilidades ---------- */
 const $ = s => document.querySelector(s);
@@ -510,7 +650,7 @@ function speak(text, reg){
   try {
     const synth = window.speechSynthesis; if (!synth) return toast("Tu navegador no puede leer en voz alta");
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/[¡!¿?]/g, "")); u.lang = LANG[reg] || "es-ES"; u.rate = .9;
+    const u = new SpeechSynthesisUtterance(text.replace(/[¡!¿?]/g, "")); u.lang = (reg === "ALL" && S.variant === "la") ? "es-MX" : (LANG[reg] || "es-ES"); u.rate = .9;
     const voices = synth.getVoices();
     u.voice = voices.find(v => v.lang === u.lang) || voices.find(v => v.lang && v.lang.startsWith("es")) || null;
     synth.speak(u);
@@ -534,31 +674,34 @@ const dueList = () => { const now = Date.now(); return V.filter(w => S.cards[w.i
 function refreshHeader(){
   $("#hdStreak").textContent = streak();
   $("#hdXp").textContent = S.xp[dk()] || 0;
-  $("#dueBadge").textContent = dueList().length + newRoom();
+  const n = dueList().length + newRoom();
+  $("#dueBadge").textContent = n; $("#dueBadge2").textContent = n; $("#dueBadge2").hidden = !n;
+  $("#variantPill").textContent = VARIANTS[S.variant].short;
 }
-function newRoom(){ return Math.min(Math.max(0, NEW_PER_DAY - (S.newDay.d === dk() ? S.newDay.n : 0)), V.filter(w => !S.cards[w.id]).length); }
+function newRoom(){ return Math.min(Math.max(0, NEW_PER_DAY - (S.newDay.d === dk() ? S.newDay.n : 0)), pool().filter(w => !S.cards[w.id]).length); }
 
 /* ---------- Pestañas ---------- */
 const TABS = ["inicio","tarjetas","quiz","donde","diario","vocabulario"];
 function show(tab){
   if (!TABS.includes(tab)) tab = "inicio";
   TABS.forEach(t => { $("#view-"+t).hidden = t !== tab; $("#t-"+t).setAttribute("aria-selected", t === tab); });
+  document.querySelectorAll(".bnav button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
   try { history.replaceState(null, "", "#"+tab); } catch(e){}
   current = tab;
   ({inicio:renderHome, tarjetas:startCards, quiz:()=>{ if(!qz.q) newRound(); }, donde:()=>{ if(!wg.w) newWhere(); }, diario:renderDiary, vocabulario:renderLib})[tab]();
   window.scrollTo(0, 0);
 }
 let current = "inicio";
-document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+document.querySelectorAll(".tab, .bnav button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
 document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) show(g.dataset.go); });
 
 /* ---------- Inicio ---------- */
-function wordOfDay(){ return V[hash(dk()) % V.length]; }
+function wordOfDay(){ const P = pool(); return P[hash(dk()+S.variant) % P.length]; }
 function mission(){
   if (!S.mission || S.mission.d !== dk()) {
     const r = rng(hash("m"+dk()));
-    const learning = shuffle(V.filter(w => status(w.id) === "aprendiendo"), r);
-    const rest = shuffle(V.filter(w => status(w.id) !== "aprendiendo" && w.id !== wordOfDay().id), r);
+    const learning = shuffle(pool().filter(w => status(w.id) === "aprendiendo"), r);
+    const rest = shuffle(pool().filter(w => status(w.id) !== "aprendiendo" && w.id !== wordOfDay().id), r);
     S.mission = {d:dk(), ids:[...learning, ...rest].slice(0,3).map(w => w.id), done:[]};
     save();
   }
@@ -572,7 +715,7 @@ function renderHome(){
   const h = now.getHours();
   $("#greet").textContent = h < 13 ? "¡Buenos días!" : h < 20 ? "¡Buenas tardes!" : "¡Buenas noches!";
   const xpToday = S.xp[dk()] || 0, goal = S.goal;
-  $("#greetSub").textContent = xpToday >= goal ? "Meta cumplida. Todo lo que hagas ahora es extra." : `Te faltan ${goal - xpToday} XP para tu meta de hoy. Una palabra nueva, úsala y repásala mañana.`;
+  $("#greetSub").textContent = xpToday >= goal ? "Meta cumplida. Todo lo que hagas ahora es extra." : `Te faltan ${goal - xpToday} XP para tu meta de hoy. Practicas el español de ${VARIANTS[S.variant].name === "Los dos" ? "España y Latinoamérica" : VARIANTS[S.variant].name}.`;
   $("#goalSel").value = String(goal);
   const C = 226.2; $("#ringArc").setAttribute("stroke-dashoffset", C * (1 - Math.min(1, xpToday/goal)));
   $("#ringVal").textContent = xpToday; $("#ringGoal").textContent = `de ${goal} XP`;
@@ -626,6 +769,9 @@ function renderHome(){
     const ws = V.filter(w => zone(w.reg) === z), m2 = ws.filter(w => status(w.id) === "dominada").length;
     return `<div class="prog-row"><div class="lbl"><span>${name}</span><b>${m2} / ${ws.length}</b></div><div class="track"><i style="width:${100*m2/ws.length}%; background:${col}"></i></div></div>`;
   }).join("");
+  $("#regionProg").innerHTML += `<div class="eyebrow" style="margin-top:6px">Latinoamérica por país</div><div class="countries" style="margin-top:0">` + COUNTRIES.map(c => {
+    const ws = V.filter(w => w.reg === c); if (!ws.length) return "";
+    return `<div class="ctry" title="${esc(REG[c])}"><span>${esc(REG[c])}</span><b>${ws.filter(w => status(w.id) === "dominada").length}/${ws.length}</b></div>`; }).join("") + `</div>`;
 }
 $("#goalSel").addEventListener("change", e => { S.goal = +e.target.value; save(); renderHome(); });
 
@@ -635,11 +781,11 @@ function buildQueue(extra = false){
   const now = Date.now();
   if (S.newDay.d !== dk()) S.newDay = {d:dk(), n:0};
   const due = dueList().sort((a,b) => S.cards[a.id].due - S.cards[b.id].due);
-  const unseen = shuffle(V.filter(w => !S.cards[w.id]));
+  const unseen = shuffle(pool().filter(w => !S.cards[w.id]));
   const fresh = extra ? [] : unseen.slice(0, newRoom());
   queue = [...due, ...fresh];
-  if (extra) queue = shuffle(V.filter(w => status(w.id) !== "dominada")).slice(0, 10);
-  if (extra && !queue.length) queue = shuffle(V).slice(0, 10);
+  if (extra) queue = shuffle(pool().filter(w => status(w.id) !== "dominada")).slice(0, 10);
+  if (extra && !queue.length) queue = shuffle(pool()).slice(0, 10);
   built = true;
 }
 function startCards(){ if (!built || (!cur && !queue.length)) buildQueue(); if (!cur) nextCard(); else renderCard(); renderBoxes(); }
@@ -711,7 +857,7 @@ function distractors(w, n){
   return shuffle(V.filter(x => x.id !== w.id && !tokens(x.en).some(t => tw.has(t)))).slice(0, n);
 }
 function makeQ(){
-  const w = pick(V), others = distractors(w, 3), type = pick(["meaning","reverse","cloze"]);
+  const w = pick(pool()), others = distractors(w, 3), type = pick(["meaning","reverse","cloze"]);
   const all = [w, ...others];
   if (type === "meaning") return {w, label:"¿Qué significa?", prompt:esc(w.es), sentence:false, opts:shuffle(all.map(x=>x.en)), correct:w.en};
   if (type === "reverse") return {w, label:"¿Qué palabra o expresión es?", prompt:esc(w.def), sentence:true, sub:esc(w.en), opts:shuffle(all.map(x=>x.es)), correct:w.es};
@@ -751,36 +897,46 @@ function answerQ(b){
 
 /* ---------- ¿Dónde se dice? ---------- */
 let wg = {w:null, n:0, res:[], answered:false};
-const wherePool = () => V.filter(w => w.reg !== "ALL");
-function newWhere(){ wg = {w:pick(wherePool()), n:0, res:[], answered:false}; renderWhere(); }
+const whereMode = () => S.whereMode || (S.variant === "la" ? "pais" : "zona");
+const wherePool = () => whereMode() === "pais" ? V.filter(w => COUNTRIES.includes(w.reg)) : V.filter(w => w.reg !== "ALL");
+function newWhere(){ wg = {w:pick(wherePool()), n:0, res:[], answered:false, opts:null}; renderWhere(); }
 function renderWhere(){
-  const box = $("#whereBox");
+  const box = $("#whereBox"), mode = whereMode();
+  const seg = `<div class="seg" role="group" aria-label="Modo de juego"><button data-wm="zona" aria-pressed="${mode==="zona"}">España o Latam</button><button data-wm="pais" aria-pressed="${mode==="pais"}">¿De qué país?</button></div>`;
+  const bindSeg = () => box.querySelectorAll("[data-wm]").forEach(b => b.onclick = () => { S.whereMode = b.dataset.wm; save(); newWhere(); });
   if (wg.n >= ROUND) {
     const ok = wg.res.filter(Boolean).length;
-    box.innerHTML = `<div class="empty"><span class="eyebrow">Fin del viaje</span><h3>${ok} de ${ROUND}</h3>
-      <p class="muted">${ok>=8?"Tienes oído de viajero: distingues la orilla de cada palabra.":"Fíjate en los equivalentes: son la clave para entender a todos."}</p>
+    box.innerHTML = `<div class="game-top">${seg}</div><div class="empty"><span class="eyebrow">Fin del viaje</span><h3>${ok} de ${ROUND}</h3>
+      <p class="muted">${ok>=8?"Tienes oído de viajero: sabes de dónde viene cada palabra.":"Fíjate en los equivalentes: son la clave para entender a todos."}</p>
       <button class="btn primary" id="againW">Otro viaje</button></div>`;
-    $("#againW").onclick = newWhere; return;
+    $("#againW").onclick = newWhere; bindSeg(); return;
   }
   const w = wg.w;
-  box.innerHTML = `<div class="game-top"><span class="eyebrow">¿Dónde lo oirías?</span>${pips(wg.res, wg.n)}</div>
+  let opts;
+  if (mode === "pais") {
+    if (!wg.opts) wg.opts = shuffle([w.reg, ...shuffle(COUNTRIES.filter(c => c !== w.reg && V.some(x => x.reg === c))).slice(0,3)]);
+    opts = wg.opts.map(c => `<button class="opt" data-z="${c}">${esc(REG[c])}</button>`).join("");
+  } else {
+    opts = `<button class="opt" data-z="es">España<span>Madrid, Sevilla, Barcelona…</span></button>
+      <button class="opt" data-z="la">Latinoamérica<span>México, Bogotá, Buenos Aires…</span></button>`;
+  }
+  box.innerHTML = `<div class="game-top">${seg}${pips(wg.res, wg.n)}</div>
+    <span class="eyebrow">${mode==="pais"?"¿En qué país lo oirías?":"¿Dónde lo oirías?"}</span>
     <div class="row" style="justify-content:space-between; flex-wrap:nowrap; align-items:flex-start"><div class="q-prompt" style="min-width:0">${esc(w.es)}</div><button class="btn speak" id="wSpeak" aria-label="Escuchar">${SPEAK_SVG}</button></div>
     <p class="ex">${esc(plainEx(w.ej))}</p>
-    <div class="where">
-      <button class="opt" data-z="es">España<span>Madrid, Sevilla, Barcelona…</span></button>
-      <button class="opt" data-z="la">Latinoamérica<span>México, Bogotá, Buenos Aires…</span></button>
-    </div><div id="wFb"></div>`;
+    <div class="where ${mode==="pais"?"four":""}">${opts}</div><div id="wFb"></div>`;
+  bindSeg();
   $("#wSpeak").onclick = () => speak(w.es, w.reg);
   box.querySelectorAll(".where .opt").forEach(b => b.onclick = () => {
     if (wg.answered) return; wg.answered = true;
-    const right = zone(w.reg), ok = b.dataset.z === right;
+    const right = mode === "pais" ? w.reg : zone(w.reg), ok = b.dataset.z === right;
     box.querySelectorAll(".where .opt").forEach(o => { o.disabled = true; if (o.dataset.z === right) o.classList.add("right"); });
     if (!ok) b.classList.add("wrong");
-    wg.res.push(ok); S.region.t++; if (ok) { S.region.r++; addXP(5); } else save();
+    wg.res.push(ok); S.region.t++; if (ok) { S.region.r++; addXP(mode === "pais" ? 10 : 5); } else save();
     $("#wFb").innerHTML = `<div class="feedback ${ok?"ok":"ko"}"><strong>${ok?"¡Exacto!":"¡Ojo!"} Se dice en ${esc(REG[w.reg])}.</strong>
       <p><i>${esc(w.en)}</i> · ${esc(w.def)}</p><p class="par"><b>Equivalente:</b> ${esc(w.par)}</p>
       <div class="row" style="justify-content:flex-end"><button class="btn primary sm" id="wNext">${wg.n+1>=ROUND?"Ver resultado":"Siguiente"}</button></div></div>`;
-    $("#wNext").onclick = () => { wg.n++; let nx; do { nx = pick(wherePool()); } while (nx.id === w.id); wg.w = nx; wg.answered = false; renderWhere(); };
+    $("#wNext").onclick = () => { wg.n++; let nx; do { nx = pick(wherePool()); } while (nx.id === w.id); wg.w = nx; wg.opts = null; wg.answered = false; renderWhere(); };
     $("#wNext").focus();
   });
 }
@@ -821,11 +977,12 @@ $("#diaryForm").addEventListener("submit", e => {
 
 /* ---------- Vocabulario ---------- */
 const CATS = [...new Set(V.map(w => w.cat))].sort((a,b)=>a.localeCompare(b,"es"));
+$("#fReg").innerHTML = `<option value="">Todas las regiones</option><option value="es">España</option><option value="la">Toda Latinoamérica</option><option value="all">Común a todos</option><optgroup label="Por país">` + COUNTRIES.map(c => `<option value="${c}">${esc(REG[c])}</option>`).join("") + `</optgroup>`;
 $("#fCat").innerHTML = `<option value="">Todas las categorías</option>` + CATS.map(c => `<option>${esc(c)}</option>`).join("");
 ["#fSearch","#fReg","#fCat","#fStat"].forEach(s => $(s).addEventListener("input", renderLib));
 function renderLib(){
   const q = norm($("#fSearch").value.trim()), r = $("#fReg").value, c = $("#fCat").value, st = $("#fStat").value;
-  const list = V.filter(w => (!q || norm(w.es+" "+w.en+" "+w.def+" "+w.par).includes(q)) && (!r || zone(w.reg)===r) && (!c || w.cat===c) && (!st || status(w.id)===st));
+  const list = V.filter(w => (!q || norm(w.es+" "+w.en+" "+w.def+" "+w.par).includes(q)) && (!r || zone(w.reg)===r || w.reg===r) && (!c || w.cat===c) && (!st || status(w.id)===st));
   $("#libCount").textContent = `${list.length} de ${V.length} palabras y expresiones`;
   $("#lib").innerHTML = list.length ? list.map(w => { const s = status(w.id); return `<article class="card">
       <div class="hd"><div class="w">${esc(w.es)}</div><button class="btn speak" data-say="${w.id}" aria-label="Escuchar ${esc(w.es)}">${SPEAK_SVG}</button></div>
@@ -842,12 +999,61 @@ $("#resetBtn").addEventListener("click", e => {
   const b = e.currentTarget;
   if (!resetArm) { b.textContent = "¿Seguro? Pulsa otra vez para borrar todo"; resetArm = setTimeout(() => { b.textContent = "Borrar mi progreso"; resetArm = null; }, 4000); return; }
   clearTimeout(resetArm); resetArm = null; b.textContent = "Borrar mi progreso";
-  S = fresh(); save(); built = false; cur = null; queue = []; sesDone = 0; refreshHeader(); show(current); toast("Progreso borrado");
+  S = Object.assign(fresh(), {onboarded:true, variant:S.variant, goal:S.goal}); save(); built = false; cur = null; queue = []; sesDone = 0; refreshHeader(); show(current); toast("Progreso borrado");
 });
 
 /* ---------- Arranque ---------- */
+/* ---------- App: variante, ajustes, compartir ---------- */
+const ARTIFACT_URL = "https://claude.ai/artifact/HNVegv8VpmzC6foaP3BHgY";
+const SHARE_URL = /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent|sandbox/.test(location.hostname) ? location.href.split("#")[0] : ARTIFACT_URL;
+const GOALS = [[30,"Relajada"],[50,"Normal"],[100,"Intensa"]];
+function choicesHTML(){ return Object.entries(VARIANTS).map(([k,v]) => `<button class="choice" data-variant="${k}" aria-pressed="${S.variant===k}"><div class="sw" style="background:${v.col}"></div><b>${v.name}</b><span>${v.desc}</span></button>`).join(""); }
+function goalsHTML(){ return GOALS.map(([g,l]) => `<button data-goal="${g}" aria-pressed="${S.goal===g}">${l} · ${g} XP</button>`).join(""); }
+function setVariant(v){ if (S.variant === v) return; S.variant = v; S.mission = null; save(); built = false; cur = null; queue = []; wg.w = null; qz.q = null; refreshHeader(); }
+function bindSheet(root){
+  root.querySelectorAll("[data-variant]").forEach(b => b.onclick = () => { setVariant(b.dataset.variant); root.querySelectorAll("[data-variant]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+  root.querySelectorAll("[data-goal]").forEach(b => b.onclick = () => { S.goal = +b.dataset.goal; save(); root.querySelectorAll("[data-goal]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+}
+function openSheet(id){
+  const el = $("#"+id);
+  if (id === "settings") { $("#setChoices").innerHTML = choicesHTML(); $("#setGoal").innerHTML = goalsHTML(); $("#shareUrl").value = SHARE_URL; $("#importMsg").textContent = ""; }
+  if (id === "onboard") { $("#obChoices").innerHTML = choicesHTML(); $("#obGoal").innerHTML = goalsHTML(); }
+  bindSheet(el); el.hidden = false;
+  const f = el.querySelector("button"); if (f) f.focus();
+}
+function closeSheet(id){ $("#"+id).hidden = true; show(current); }
+$("#settingsBtn").onclick = () => openSheet("settings");
+$("#variantPill").onclick = () => openSheet("settings");
+document.addEventListener("click", e => { const o = e.target.closest("[data-open]"); if (o) openSheet(o.dataset.open); });
+$("#setClose").onclick = () => closeSheet("settings");
+$("#settings").addEventListener("click", e => { if (e.target.id === "settings") closeSheet("settings"); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#settings").hidden) closeSheet("settings"); });
+$("#obStart").onclick = () => { S.onboarded = true; save(); closeSheet("onboard"); toast(`¡A practicar! Español de ${VARIANTS[S.variant].name === "Los dos" ? "España y Latinoamérica" : VARIANTS[S.variant].name}`); };
+
+function copyText(text, okMsg, fallbackEl){
+  const fail = () => { if (fallbackEl) { fallbackEl.focus(); fallbackEl.select(); toast("Selecciona y copia el texto"); } else toast("No se pudo copiar"); };
+  try { navigator.clipboard.writeText(text).then(() => toast(okMsg), fail); } catch(e){ fail(); }
+}
+$("#shareBtn").onclick = () => copyText(`Estoy aprendiendo español de España y Latinoamérica con Palabra Viva. Pruébala: ${SHARE_URL}`, "Enlace copiado. ¡Compártelo!");
+$("#copyLink").onclick = () => copyText(SHARE_URL, "Enlace copiado", $("#shareUrl"));
+$("#copyCode").onclick = () => { const code = "PV1:" + btoa(unescape(encodeURIComponent(JSON.stringify(S)))); $("#importCode").value = code; copyText(code, "Código copiado", $("#importCode")); };
+$("#importBtn").onclick = () => {
+  const raw = $("#importCode").value.trim(), msg = $("#importMsg");
+  try {
+    if (!raw.startsWith("PV1:")) throw 0;
+    const d = JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));
+    if (!d || typeof d.cards !== "object") throw 0;
+    S = Object.assign(fresh(), d, {onboarded:true}); save(); built = false; cur = null; queue = []; refreshHeader();
+    msg.textContent = "Progreso importado."; toast("Progreso importado");
+  } catch(e){ msg.textContent = "Ese código no es válido. Copia el código completo, empieza por PV1:"; }
+};
+$("#wodShare").onclick = () => { const w = wordOfDay(); copyText(`Palabra del día (${REG[w.reg]}): «${w.es}» = ${w.en}. ${plainEx(w.ej)}\nAprende más con Palabra Viva: ${SHARE_URL}`, "Palabra copiada. ¡Mándasela a alguien!"); };
+
+try { if ("serviceWorker" in navigator && document.querySelector('link[rel="manifest"]')) navigator.serviceWorker.register("sw.js").catch(() => {}); } catch(e){}
+
 refreshHeader();
 show((location.hash || "#inicio").slice(1));
+if (!S.onboarded) openSheet("onboard");
 </script>
 </body>
 </html>
