@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Palabra Viva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky azulejo header + tab bar; each tab is one working view, dashboard is a 12-col grid that stacks on phones */
+:root{
+  --bg:#EDF1F6; --surface:#FFFFFF; --surface-2:#E2E8F1; --ink:#101B2E; --muted:#59667A; --line:#D2DBE7;
+  --cobalt:#1D4DB3; --cobalt-soft:#DBE5FA; --on-accent:#FFFFFF;
+  --jade:#0B7A63; --jade-soft:#D3EEE6;
+  --saffron:#C98608; --saffron-soft:#FAEBC9;
+  --good:#18794A; --good-soft:#D7F0E1; --bad:#BF3328; --bad-soft:#F8DEDA;
+  --f-display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --f-body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r:14px; --shadow:0 1px 2px rgba(16,27,46,.06), 0 6px 20px rgba(16,27,46,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#131D2E; --surface-2:#1B2840; --ink:#E6ECF5; --muted:#9AA8BD; --line:#25344E;
+  --cobalt:#86A8F6; --cobalt-soft:#1C2E55; --on-accent:#0B1220;
+  --jade:#4FCBA9; --jade-soft:#12352E; --saffron:#F1B743; --saffron-soft:#3A2C0F;
+  --good:#52D190; --good-soft:#123824; --bad:#FF8073; --bad-soft:#41191A;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#131D2E; --surface-2:#1B2840; --ink:#E6ECF5; --muted:#9AA8BD; --line:#25344E;
+  --cobalt:#86A8F6; --cobalt-soft:#1C2E55; --on-accent:#0B1220;
+  --jade:#4FCBA9; --jade-soft:#12352E; --saffron:#F1B743; --saffron-soft:#3A2C0F;
+  --good:#52D190; --good-soft:#123824; --bad:#FF8073; --bad-soft:#41191A;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); color-scheme:dark; }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg); color:var(--ink); font:16px/1.5 var(--f-body); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display); line-height:1.1; text-wrap:balance; margin:0}
+p{margin:0}
+button,select,input,textarea{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--cobalt); outline-offset:2px; border-radius:8px}
+.wrap{max-width:1120px; margin:0 auto; padding-inline:16px}
+
+/* Header */
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface); border-bottom:1px solid var(--line)}
+.tiles{height:10px; background-color:var(--surface);
+  background-image:radial-gradient(circle, var(--cobalt) 0 2px, transparent 2.5px),
+    conic-gradient(from 45deg, var(--cobalt-soft) 25%, transparent 0 50%, var(--cobalt-soft) 0 75%, transparent 0);
+  background-size:20px 20px; background-position:center}
+.bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:12px}
+.brand{display:flex; align-items:baseline; gap:10px; min-width:0}
+.brand h1{font-size:1.6rem; font-weight:800; letter-spacing:-.02em}
+.brand h1 span{color:var(--cobalt)}
+.brand small{color:var(--muted); font-size:.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--surface-2); font-size:.82rem; font-weight:600; white-space:nowrap}
+.chip b{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+.chip.fire{background:var(--saffron-soft); color:var(--ink)}
+.chip.fire i{width:8px; height:8px; border-radius:50%; background:var(--saffron)}
+nav.tabs{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; padding-bottom:0}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{border:0; background:none; padding:10px 14px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; border-radius:0}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--cobalt); border-bottom-color:var(--cobalt)}
+.tab .badge{display:inline-block; min-width:20px; padding:0 6px; margin-left:6px; border-radius:999px; background:var(--cobalt); color:var(--on-accent); font-size:.72rem; font-family:var(--f-mono); line-height:18px; text-align:center}
+
+main{padding-block:24px 64px}
+.view{display:grid; gap:20px}
+.eyebrow{font-size:.74rem; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--muted)}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px; min-width:0}
+.panel h2{font-size:1.2rem; font-weight:700}
+.panel-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap}
+.muted{color:var(--muted)}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border-radius:10px; border:1px solid var(--line); background:var(--surface); font-weight:600; cursor:pointer; transition:transform .12s, background .15s}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--cobalt); border-color:var(--cobalt); color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent; background:transparent}
+.btn.sm{padding:6px 10px; font-size:.85rem; border-radius:8px}
+.btn[disabled]{opacity:.5; cursor:default}
+.speak{width:38px; height:38px; padding:0; border-radius:50%}
+.speak svg{width:18px; height:18px}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+
+/* Region tags */
+.reg{display:inline-flex; align-items:center; gap:6px; font-size:.75rem; font-weight:700; padding:3px 9px; border-radius:6px; letter-spacing:.02em}
+.reg.es{background:var(--cobalt-soft); color:var(--cobalt)}
+.reg.la{background:var(--jade-soft); color:var(--jade)}
+.reg.all{background:var(--saffron-soft); color:var(--saffron)}
+.reg code{font-family:var(--f-mono); font-size:.72rem; opacity:.85}
+.status{font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted)}
+.status.aprendiendo{border-color:var(--saffron); color:var(--saffron)}
+.status.dominada{background:var(--good-soft); border-color:transparent; color:var(--good)}
+mark{background:var(--saffron-soft); color:inherit; padding:0 3px; border-radius:4px; font-weight:600}
+
+/* Dashboard */
+.hello{display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap}
+.hello h2{font-size:clamp(1.7rem, 4vw, 2.4rem); font-weight:800; letter-spacing:-.02em}
+.hello p{color:var(--muted); margin-top:6px}
+.goal{display:flex; align-items:center; gap:14px}
+.ring{position:relative; width:84px; height:84px; flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute; inset:0; display:grid; place-items:center; font-family:var(--f-mono); font-weight:700; font-size:.95rem; text-align:center; line-height:1.1}
+.ring .val small{display:block; font-size:.62rem; color:var(--muted); font-weight:500}
+.goal select{padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--surface)}
+.kpis{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px}
+.kpi{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px}
+.kpi .n{font-family:var(--f-mono); font-size:1.7rem; font-weight:700; font-variant-numeric:tabular-nums; margin-top:4px}
+.kpi .n small{font-size:.9rem; color:var(--muted); font-weight:500}
+.kpi .s{font-size:.82rem; color:var(--muted)}
+.grid{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:20px}
+.c7{grid-column:span 7} .c5{grid-column:span 5} .c6{grid-column:span 6} .c12{grid-column:span 12}
+
+.wod{position:relative; overflow:hidden}
+.wod::after{content:""; position:absolute; right:-50px; bottom:-50px; width:160px; height:160px; opacity:.55; pointer-events:none;
+  background-image:radial-gradient(circle, var(--cobalt) 0 2px, transparent 2.5px), conic-gradient(from 45deg, var(--cobalt-soft) 25%, transparent 0 50%, var(--cobalt-soft) 0 75%, transparent 0);
+  background-size:20px 20px; border-radius:50%}
+.word-big{font-family:var(--f-display); font-weight:800; font-size:clamp(2.1rem, 6vw, 3.2rem); letter-spacing:-.03em; line-height:1}
+.en{font-style:italic; color:var(--muted)}
+.ex{border-left:3px solid var(--line); padding-left:12px; margin-top:12px}
+.par{font-size:.9rem; margin-top:10px}
+.par b{font-weight:700}
+.mission{display:grid; gap:10px}
+.m-item{display:flex; gap:12px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:12px}
+.m-item input{width:20px; height:20px; margin-top:3px; accent-color:var(--good); flex:none}
+.m-item.done{background:var(--good-soft); border-color:transparent}
+.m-item.done .m-w{text-decoration:line-through; text-decoration-thickness:2px}
+.m-w{font-weight:700; font-family:var(--f-display); font-size:1.1rem}
+.m-tip{font-size:.85rem; color:var(--muted)}
+.chart{display:grid; grid-template-columns:repeat(7, 1fr); gap:10px; align-items:end; height:150px; margin-top:6px; position:relative}
+.chart .goal-line{position:absolute; left:0; right:0; border-top:1.5px dashed var(--saffron); pointer-events:none}
+.chart .goal-line span{position:absolute; right:0; top:-18px; font-size:.7rem; color:var(--saffron); font-family:var(--f-mono)}
+.bar-col{display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end}
+.bar-col .b{width:100%; max-width:38px; border-radius:6px 6px 2px 2px; background:var(--cobalt-soft); min-height:3px; transition:height .4s}
+.bar-col.today .b{background:var(--cobalt)}
+.bar-col .v{font-family:var(--f-mono); font-size:.72rem; color:var(--muted)}
+.bar-col .d{font-size:.75rem; font-weight:700; color:var(--muted)}
+.prog{display:grid; gap:14px}
+.prog-row .lbl{display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:6px}
+.prog-row .lbl b{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+.track{height:10px; background:var(--surface-2); border-radius:999px; overflow:hidden}
+.track i{display:block; height:100%; border-radius:999px; transition:width .5s}
+
+/* Flashcards */
+.study{display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:20px; align-items:start}
+.flash{background:var(--surface); border:1px solid var(--line); border-radius:20px; min-height:340px; padding:28px; display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow); cursor:pointer}
+.flash .word-big{font-size:clamp(2.2rem, 7vw, 3.6rem)}
+.flash .hint{margin-top:auto; color:var(--muted); font-size:.85rem}
+.flash .back{display:grid; gap:10px; border-top:1px dashed var(--line); padding-top:14px}
+.flash .def{font-size:1.05rem}
+.rate{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:14px}
+.rate .btn{flex-direction:column; gap:2px; padding:12px 8px}
+.rate .btn small{font-weight:500; font-size:.72rem; color:var(--muted)}
+.rate .again{border-color:var(--bad)} .rate .good{border-color:var(--cobalt)} .rate .easy{border-color:var(--good)}
+kbd{font-family:var(--f-mono); font-size:.7rem; border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:var(--surface-2)}
+.side-stats{display:grid; gap:12px}
+.boxes{display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:8px}
+.boxes div{text-align:center; padding:8px 2px; border-radius:8px; background:var(--surface-2); font-family:var(--f-mono); font-size:.9rem; font-weight:700}
+.boxes div small{display:block; font-family:var(--f-body); font-size:.62rem; font-weight:600; color:var(--muted)}
+.empty{text-align:center; padding:40px 20px; display:grid; gap:12px; justify-items:center}
+.empty h3{font-size:1.5rem}
+
+/* Quiz + region game */
+.game{max-width:720px; width:100%; margin:0 auto; display:grid; gap:16px}
+.game-top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+.pips{display:flex; gap:5px}
+.pips i{width:22px; height:6px; border-radius:3px; background:var(--surface-2)}
+.pips i.ok{background:var(--good)} .pips i.ko{background:var(--bad)} .pips i.now{background:var(--cobalt)}
+.q-prompt{font-family:var(--f-display); font-weight:800; font-size:clamp(1.8rem, 5vw, 2.6rem); letter-spacing:-.02em; line-height:1.15}
+.q-prompt.sentence{font-family:var(--f-body); font-weight:500; font-size:1.3rem; letter-spacing:0}
+.blank{display:inline-block; min-width:90px; border-bottom:3px solid var(--cobalt); color:transparent}
+.opts{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+.opt{text-align:left; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface); cursor:pointer; font-weight:600; transition:border-color .15s, background .15s}
+.opt:hover:not([disabled]){border-color:var(--cobalt)}
+.opt.right{background:var(--good-soft); border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+.opt[disabled]{cursor:default}
+.feedback{padding:14px 16px; border-radius:12px; display:grid; gap:6px}
+.feedback.ok{background:var(--good-soft)} .feedback.ko{background:var(--bad-soft)}
+.feedback strong{font-family:var(--f-display); font-size:1.1rem}
+.where{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.where .opt{text-align:center; padding:22px 12px; font-family:var(--f-display); font-size:1.25rem}
+.where .opt span{display:block; font-family:var(--f-body); font-size:.8rem; color:var(--muted); font-weight:500; margin-top:4px}
+
+/* Diary */
+.diary{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; align-items:start}
+.field{display:grid; gap:6px}
+.field label{font-weight:600; font-size:.9rem}
+select.input, textarea.input, input.input{width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface)}
+textarea.input{min-height:120px; resize:vertical}
+.prompt-card{background:var(--surface-2); border-radius:12px; padding:14px; font-size:.95rem}
+.entries{display:grid; gap:10px; max-height:560px; overflow:auto}
+.entry{border:1px solid var(--line); border-radius:12px; padding:12px 14px; display:grid; gap:6px}
+.entry .meta{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:.8rem; color:var(--muted)}
+.entry p{font-size:1rem}
+
+/* Library */
+.filters{display:grid; grid-template-columns:minmax(0,2fr) repeat(3, minmax(0,1fr)); gap:10px}
+.lib{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px; display:flex; flex-direction:column; gap:8px; min-width:0}
+.card .hd{display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
+.card .w{font-family:var(--f-display); font-weight:700; font-size:1.35rem; line-height:1.15}
+.card .ex{font-size:.92rem}
+.card .ft{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6px; gap:8px}
+.count{font-family:var(--f-mono); font-size:.85rem; color:var(--muted)}
+
+.toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translate(-50%, 20px); opacity:0; background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; pointer-events:none; transition:all .25s; z-index:10; white-space:nowrap}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+.foot{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; font-size:.85rem; color:var(--muted); border-top:1px solid var(--line); padding-top:16px}
+
+@media (max-width: 860px){
+  .c7,.c5,.c6{grid-column:span 12}
+  .study,.diary{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .filters{grid-template-columns:1fr 1fr}
+  .filters .search{grid-column:span 2}
+}
+@media (max-width: 520px){
+  .brand small{display:none}
+  .opts{grid-template-columns:1fr}
+  .flash{padding:20px; min-height:300px}
+  .panel{padding:16px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="tiles" aria-hidden="true"></div>
+  <div class="wrap bar">
+    <div class="brand"><h1>Palabra <span>Viva</span></h1><small>Español de España y Latinoamérica</small></div>
+    <div class="chips">
+      <span class="chip fire" title="Días seguidos practicando"><i></i>Racha <b id="hdStreak">0</b></span>
+      <span class="chip" title="Puntos de hoy">XP <b id="hdXp">0</b></span>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button class="tab" role="tab" data-tab="inicio" id="t-inicio">Inicio</button>
+      <button class="tab" role="tab" data-tab="tarjetas" id="t-tarjetas">Tarjetas<span class="badge" id="dueBadge">0</span></button>
+      <button class="tab" role="tab" data-tab="quiz" id="t-quiz">Quiz</button>
+      <button class="tab" role="tab" data-tab="donde" id="t-donde">¿Dónde se dice?</button>
+      <button class="tab" role="tab" data-tab="diario" id="t-diario">Mi diario</button>
+      <button class="tab" role="tab" data-tab="vocabulario" id="t-vocabulario">Vocabulario</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- INICIO -->
+<section class="view" id="view-inicio" role="tabpanel">
+  <div class="hello">
+    <div>
+      <div class="eyebrow" id="today"></div>
+      <h2 id="greet">¡Hola! ¿Listo para hablar como un local?</h2>
+      <p id="greetSub">Aprende una palabra, úsala hoy y repásala mañana.</p>
+    </div>
+    <div class="goal">
+      <div class="ring" aria-label="Progreso de la meta diaria">
+        <svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--surface-2)" stroke-width="9"/><circle id="ringArc" cx="42" cy="42" r="36" fill="none" stroke="var(--saffron)" stroke-width="9" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset .5s"/></svg>
+        <div class="val"><div><span id="ringVal">0</span><small id="ringGoal">de 50 XP</small></div></div>
+      </div>
+      <div class="field">
+        <label for="goalSel" class="eyebrow">Meta diaria</label>
+        <select id="goalSel"><option value="30">Relajada · 30 XP</option><option value="50">Normal · 50 XP</option><option value="100">Intensa · 100 XP</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="eyebrow">Racha</div><div class="n" id="kStreak">0 <small>días</small></div><div class="s" id="kStreakS">Practica hoy para empezar</div></div>
+    <div class="kpi"><div class="eyebrow">Dominadas</div><div class="n" id="kMastered">0</div><div class="s" id="kMasteredS">de 0 palabras</div></div>
+    <div class="kpi"><div class="eyebrow">Para repasar</div><div class="n" id="kDue">0</div><div class="s">tarjetas pendientes hoy</div></div>
+    <div class="kpi"><div class="eyebrow">Precisión</div><div class="n" id="kAcc">–</div><div class="s" id="kAccS">en quiz y regiones</div></div>
+  </div>
+
+  <div class="grid">
+    <article class="panel wod c7">
+      <div class="panel-head"><span class="eyebrow">Palabra del día</span><span id="wodReg"></span></div>
+      <div class="row" style="justify-content:space-between; align-items:flex-start">
+        <div style="min-width:0">
+          <div class="word-big" id="wodWord"></div>
+          <p class="en" id="wodEn" style="margin-top:8px"></p>
+        </div>
+        <button class="btn speak" id="wodSpeak" aria-label="Escuchar pronunciación"></button>
+      </div>
+      <p id="wodDef" style="margin-top:14px; font-size:1.05rem"></p>
+      <p class="ex" id="wodEx"></p>
+      <p class="par" id="wodPar"></p>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="wodWrite">Escribir una frase con ella</button>
+        <button class="btn" data-go="tarjetas">Repasar tarjetas</button>
+      </div>
+    </article>
+
+    <article class="panel c5">
+      <div class="panel-head"><h2>Úsalas hoy</h2><span class="count" id="misCount">0/3</span></div>
+      <p class="muted" style="margin-bottom:12px; font-size:.92rem">Tres palabras para meter en una conversación, un mensaje o un correo. Marca cada una cuando la uses de verdad. <b>+15 XP</b></p>
+      <div class="mission" id="mission"></div>
+    </article>
+
+    <article class="panel c6">
+      <div class="panel-head"><h2>Últimos 7 días</h2><span class="count" id="weekTotal">0 XP</span></div>
+      <div class="chart" id="chart"></div>
+    </article>
+
+    <article class="panel c6">
+      <div class="panel-head"><h2>Progreso por región</h2><span class="count">palabras dominadas</span></div>
+      <div class="prog" id="regionProg"></div>
+      <div class="row" style="margin-top:18px">
+        <button class="btn sm" data-go="quiz">Hacer un quiz</button>
+        <button class="btn sm" data-go="donde">Jugar a ¿Dónde se dice?</button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- TARJETAS -->
+<section class="view" id="view-tarjetas" role="tabpanel" hidden>
+  <div class="study">
+    <div>
+      <div id="flashWrap"></div>
+    </div>
+    <aside class="side-stats">
+      <div class="panel">
+        <div class="eyebrow">Sesión de hoy</div>
+        <p style="margin-top:6px"><b id="sesDone" style="font-family:var(--f-mono)">0</b> repasadas · <b id="sesLeft" style="font-family:var(--f-mono)">0</b> en cola</p>
+        <p class="muted" style="font-size:.85rem; margin-top:6px">Hasta 10 palabras nuevas al día. Las que fallas vuelven al final de la cola.</p>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Tus cajas de memoria</div>
+        <div class="boxes" id="boxes"></div>
+        <p class="muted" style="font-size:.8rem; margin-top:8px">Cada acierto sube la palabra una caja: repasos a 1, 3, 7, 14 y 30 días. Desde la caja 3 cuenta como dominada.</p>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Atajos</div>
+        <p style="font-size:.88rem; margin-top:6px"><kbd>Espacio</kbd> voltear · <kbd>1</kbd> otra vez · <kbd>2</kbd> bien · <kbd>3</kbd> fácil · <kbd>S</kbd> escuchar</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="view" id="view-quiz" role="tabpanel" hidden>
+  <div class="game panel" id="quizBox"></div>
+</section>
+
+<!-- DONDE -->
+<section class="view" id="view-donde" role="tabpanel" hidden>
+  <div class="game panel" id="whereBox"></div>
+</section>
+
+<!-- DIARIO -->
+<section class="view" id="view-diario" role="tabpanel" hidden>
+  <div class="diary">
+    <div class="panel">
+      <div class="panel-head"><h2>Escribe tu frase</h2><span class="count">+20 XP</span></div>
+      <form id="diaryForm" class="mission" novalidate>
+        <div class="field">
+          <label for="diaryWord">Palabra o expresión</label>
+          <select id="diaryWord" class="input"></select>
+        </div>
+        <div class="prompt-card" id="diaryPrompt"></div>
+        <div class="field">
+          <label for="diaryText">Tu frase sobre tu vida real</label>
+          <textarea id="diaryText" class="input" placeholder="Ej.: Hoy he quedado con mi hermana para ir de tapas."></textarea>
+        </div>
+        <div class="row"><button class="btn primary" type="submit">Guardar en mi diario</button><span id="diaryMsg" class="muted" style="font-size:.9rem"></span></div>
+      </form>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Mi diario</h2><span class="count" id="diaryCount">0 frases</span></div>
+      <div class="entries" id="entries"></div>
+    </div>
+  </div>
+</section>
+
+<!-- VOCABULARIO -->
+<section class="view" id="view-vocabulario" role="tabpanel" hidden>
+  <div class="filters">
+    <input id="fSearch" class="input search" type="search" placeholder="Buscar en español o inglés…" aria-label="Buscar">
+    <select id="fReg" class="input" aria-label="Región"><option value="">Todas las regiones</option><option value="es">España</option><option value="la">Latinoamérica</option><option value="all">Todo el mundo hispano</option></select>
+    <select id="fCat" class="input" aria-label="Categoría"></select>
+    <select id="fStat" class="input" aria-label="Estado"><option value="">Cualquier estado</option><option value="nueva">Nuevas</option><option value="aprendiendo">Aprendiendo</option><option value="dominada">Dominadas</option></select>
+  </div>
+  <p class="count" id="libCount"></p>
+  <div class="lib" id="lib"></div>
+</section>
+
+<div class="foot">
+  <span>Tu progreso se guarda en este navegador.</span>
+  <button class="btn sm ghost" id="resetBtn">Borrar mi progreso</button>
+</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Datos ---------- */
+const REG = {ES:"España",MX:"México",AR:"Argentina",CO:"Colombia",CL:"Chile",PE:"Perú",CR:"Costa Rica",LA:"Latinoamérica",ALL:"Todo el mundo hispano"};
+const LANG = {ES:"es-ES",MX:"es-MX",AR:"es-AR",CO:"es-CO",CL:"es-CL",PE:"es-PE",CR:"es-CR",LA:"es-MX",ALL:"es-ES"};
+// [palabra, inglés, definición, ejemplo con *marca*, región, categoría, equivalente en la otra orilla]
+const RAW = [
+["guay","cool","Algo que está muy bien o que te gusta.","Tu chaqueta nueva es muy *guay*.","ES","Jerga","En Latinoamérica: chévere (CO), padre o chido (MX), bacán (CL)"],
+["vale","okay","Para aceptar, confirmar o cerrar un plan.","—¿Nos vemos a las siete? —*Vale*, perfecto.","ES","Expresiones","En Latinoamérica: dale (AR), sale (MX), listo (CO)"],
+["tío, tía","dude, mate","Forma coloquial de llamar a un amigo o a cualquier persona.","¡*Tío*, no te lo vas a creer!","ES","Jerga","En Latinoamérica: güey (MX), che (AR), parce (CO)"],
+["me mola","I love it","Decir que algo te gusta mucho.","*Me mola* mucho este barrio.","ES","Jerga","En Latinoamérica: me encanta, me late (MX)"],
+["currar","to work","Trabajar, en lenguaje coloquial.","Mañana tengo que *currar* temprano.","ES","Trabajo y dinero","En Latinoamérica: chambear (MX), laburar (AR)"],
+["pasta","dough (money)","Dinero, en lenguaje coloquial.","Ese viaje cuesta mucha *pasta*.","ES","Trabajo y dinero","En Latinoamérica: lana (MX), plata (AR, CO, CL)"],
+["flipar","to be amazed","Sorprenderse muchísimo.","Vas a *flipar* con las vistas desde la terraza.","ES","Emociones","En Latinoamérica: alucinar, quedar loco"],
+["estar hecho polvo","to be exhausted","Estar muy cansado.","Después del viaje *estoy hecho polvo*.","ES","Expresiones","En Latinoamérica: estar muerto, estar molido"],
+["quedar","to meet up","Acordar verse con alguien en un lugar y una hora.","¿*Quedamos* el sábado para tomar algo?","ES","Vida diaria","En Latinoamérica: juntarse, verse"],
+["ordenador","computer","Máquina para trabajar, navegar y programar.","Tengo el *ordenador* en el salón.","ES","Vida diaria","En Latinoamérica: computadora, compu"],
+["móvil","cell phone","El teléfono que llevas siempre encima.","Se me ha olvidado el *móvil* en casa.","ES","Vida diaria","En Latinoamérica: celular, cel"],
+["zumo","juice","Bebida hecha con fruta exprimida.","Para desayunar, un *zumo* de naranja.","ES","Comida y bebida","En Latinoamérica: jugo"],
+["coche","car","Vehículo de cuatro ruedas.","Vamos en *coche* a la playa.","ES","Vida diaria","En Latinoamérica: carro (MX, CO), auto (AR, CL)"],
+["patata","potato","Tubérculo básico de la cocina.","La tortilla de *patata* lleva huevo y cebolla.","ES","Comida y bebida","En Latinoamérica: papa"],
+["conducir","to drive","Llevar un vehículo.","No me gusta *conducir* de noche.","ES","Vida diaria","En Latinoamérica: manejar"],
+["vosotros","you all (informal)","Segunda persona del plural, en registro informal.","¿*Vosotros* venís a la cena?","ES","Gramática","En Latinoamérica: ustedes (para todo registro)"],
+["piso","apartment","Vivienda dentro de un edificio.","Comparto *piso* con dos amigos.","ES","Vida diaria","En Latinoamérica: departamento (MX, AR, CL), apartamento (CO)"],
+["una caña","small draft beer","Vaso pequeño de cerveza de barril.","¿Nos tomamos *una caña* en la terraza?","ES","Comida y bebida","En Latinoamérica: una chela (MX, PE), una birra (AR)"],
+["ir de tapas","to go out for tapas","Ir de bar en bar picando platos pequeños.","Los viernes solemos *ir de tapas* por el centro.","ES","Comida y bebida","En Latinoamérica: salir a picar algo, botanear (MX)"],
+["estar de mala leche","to be in a bad mood","Estar enfadado o de mal humor.","Hoy el jefe *está de mala leche*.","ES","Emociones","En Latinoamérica: estar de malas"],
+["¡Qué morro!","What nerve!","Se dice cuando alguien es un caradura.","Se coló en la fila. ¡*Qué morro*!","ES","Expresiones","En Latinoamérica: ¡Qué descaro!, ¡Qué conchudo! (PE)"],
+["chaval","kid, young guy","Chico joven.","Ese *chaval* juega muy bien al fútbol.","ES","Jerga","En Latinoamérica: chamaco (MX), pibe (AR), pelado (CO)"],
+["empollar","to cram","Estudiar mucho, sobre todo antes de un examen.","Tengo que *empollar* para el examen del lunes.","ES","Trabajo y dinero","En Latinoamérica: matarse estudiando, quemarse las pestañas"],
+["echar una mano","to lend a hand","Ayudar a alguien.","¿Me *echas una mano* con la mudanza?","ALL","Expresiones","Se entiende en todos los países."],
+["ponerse las pilas","to get your act together","Empezar a esforzarse o a espabilar.","Si quieres aprobar, *ponte las pilas*.","ALL","Expresiones","Se entiende en todos los países."],
+["tomar el pelo","to pull someone's leg","Bromear engañando a alguien.","¿En serio? Me estás *tomando el pelo*.","ALL","Expresiones","Se entiende en todos los países."],
+["ser pan comido","to be a piece of cake","Ser muy fácil.","El examen *fue pan comido*.","ALL","Expresiones","Se entiende en todos los países."],
+["costar un ojo de la cara","to cost an arm and a leg","Ser carísimo.","Ese piso *cuesta un ojo de la cara*.","ALL","Expresiones","Se entiende en todos los países."],
+["estar en las nubes","head in the clouds","Estar distraído, pensando en otra cosa.","Perdona, *estaba en las nubes*.","ALL","Expresiones","Se entiende en todos los países."],
+["meter la pata","to put your foot in it","Equivocarse o decir algo inoportuno.","*Metí la pata* y le conté la sorpresa.","ALL","Expresiones","Se entiende en todos los países."],
+["no tener pelos en la lengua","to not mince words","Decir lo que piensas sin filtro.","Mi abuela *no tiene pelos en la lengua*.","ALL","Expresiones","Se entiende en todos los países."],
+["como pez en el agua","in your element","Sentirse muy cómodo en un lugar o situación.","En la cocina está *como pez en el agua*.","ALL","Expresiones","Se entiende en todos los países."],
+["a lo hecho, pecho","what's done is done","Asumir las consecuencias de lo que hiciste.","Ya firmé el contrato; *a lo hecho, pecho*.","ALL","Expresiones","Se entiende en todos los países."],
+["dar en el clavo","to hit the nail on the head","Acertar de lleno.","Con ese regalo *diste en el clavo*.","ALL","Expresiones","Se entiende en todos los países."],
+["hablar por los codos","to talk nonstop","Hablar muchísimo.","Mi hermano *habla por los codos*.","ALL","Expresiones","Se entiende en todos los países."],
+["la sobremesa","after-meal chat","El rato que pasas charlando en la mesa después de comer.","*La sobremesa* duró hasta las seis.","ALL","Vida diaria","Muy típica en España, México y Argentina."],
+["madrugar","to get up early","Levantarse muy temprano.","Mañana tengo que *madrugar* para el vuelo.","ALL","Vida diaria","Se entiende en todos los países."],
+["chévere","great, awesome","Algo que está muy bien.","La fiesta estuvo muy *chévere*.","CO","Jerga","En España: guay. También en Venezuela y Perú."],
+["¡Qué padre!","How cool!","Exclamación para algo que te encanta.","¿Te vas a Oaxaca? ¡*Qué padre*!","MX","Jerga","En España: ¡Qué guay!"],
+["chido","neat, nice","Bonito, bueno o que mola.","Tu playera está bien *chida*.","MX","Jerga","En España: chulo, guay"],
+["¿Qué onda?","What's up?","Saludo informal entre amigos.","¿*Qué onda*? ¿Todo bien?","MX","Saludos","En España: ¿Qué pasa?, ¿Qué tal?"],
+["ahorita","in a bit / right now","Según el tono: ahora mismo o dentro de un rato (a veces mucho rato).","*Ahorita* te llamo.","MX","Vida diaria","En España: ahora, ahora mismo"],
+["güey","buddy","Forma muy coloquial de llamar a un amigo.","No manches, *güey*, qué buena idea.","MX","Jerga","En España: tío"],
+["chamba","gig, job","Trabajo, sobre todo uno puntual.","Encontré *chamba* en una cafetería.","MX","Trabajo y dinero","En España: curro. También en Perú."],
+["lana","cash","Dinero, en lenguaje coloquial.","No tengo *lana* para el concierto.","MX","Trabajo y dinero","En España: pasta"],
+["¡Aguas!","Watch out!","Aviso de peligro.","¡*Aguas* con el carro!","MX","Expresiones","En España: ¡Cuidado!, ¡Ojo!"],
+["¿Mande?","Pardon?","Forma educada de responder o pedir que repitan.","—Oye, Sofía. —¿*Mande*?","MX","Saludos","En España: ¿Sí?, ¿Perdón?"],
+["platicar","to chat","Conversar de forma relajada.","Vamos a *platicar* un rato en el café.","MX","Vida diaria","En España: charlar"],
+["che","hey","Para llamar la atención de alguien.","*Che*, ¿venís a cenar?","AR","Saludos","En España: oye, tío"],
+["re","really, super","Intensifica lo que va detrás.","Esa película está *re* buena.","AR","Jerga","En España: muy, súper"],
+["laburo","job","Trabajo, en lenguaje coloquial.","Hoy salgo tarde del *laburo*.","AR","Trabajo y dinero","En España: curro"],
+["bondi","bus","Autobús urbano.","Me tomo el *bondi* a las ocho.","AR","Vida diaria","En España: el autobús, el bus"],
+["copado","awesome","Algo genial o una persona muy maja.","Tu proyecto está *copado*.","AR","Jerga","En España: guay"],
+["parce","pal","Amigo, compañero. Viene de parcero.","¿Qué más, *parce*? ¿Cómo vas?","CO","Jerga","En España: tío"],
+["tinto","black coffee","Café solo. Ojo: en España un tinto es vino tinto.","¿Te provoca un *tinto*?","CO","Comida y bebida","En España: un café solo"],
+["¿Qué más?","How's it going?","Saludo informal para preguntar cómo estás.","¡Hola, Juli! ¿*Qué más*?","CO","Saludos","En España: ¿Qué tal?"],
+["al tiro","right away","Inmediatamente.","Voy *al tiro*.","CL","Expresiones","En España: enseguida, ya mismo"],
+["¿cachai?","you get it?","Para confirmar que te entienden.","Hay que llegar temprano, ¿*cachai*?","CL","Jerga","En España: ¿me entiendes?, ¿vale?"],
+["pololo, polola","boyfriend, girlfriend","Pareja sentimental.","Voy a cenar con mi *polola*.","CL","Vida diaria","En España: novio, novia"],
+["bacán","awesome","Excelente, buenísimo.","El concierto estuvo *bacán*.","CL","Jerga","En España: guay. También en Perú."],
+["chela","beer","Cerveza, en lenguaje coloquial.","Vamos por unas *chelas* después del trabajo.","PE","Comida y bebida","En España: una caña, una cerveza. También en México."],
+["¡Pura vida!","All good!","Saludo, respuesta y filosofía de vida en Costa Rica.","—¿Cómo estás? —¡*Pura vida*!","CR","Saludos","En España: ¡Genial!, ¡Todo bien!"],
+["celular","cell phone","El teléfono que llevas siempre encima.","Se me descargó el *celular*.","LA","Vida diaria","En España: móvil"],
+["computadora","computer","Máquina para trabajar, navegar y programar.","Trabajo con la *computadora* todo el día.","LA","Vida diaria","En España: ordenador"],
+["manejar","to drive","Llevar un vehículo.","¿Sabes *manejar*?","LA","Vida diaria","En España: conducir"],
+["jugo","juice","Bebida hecha con fruta exprimida.","Un *jugo* de mango, por favor.","LA","Comida y bebida","En España: zumo"],
+["carro","car","Vehículo de cuatro ruedas.","Dejé el *carro* en el estacionamiento.","LA","Vida diaria","En España: coche"],
+["ustedes","you all","Segunda persona del plural, formal e informal.","¿*Ustedes* vienen a la fiesta?","LA","Gramática","En España: vosotros (informal)"],
+["departamento","apartment","Vivienda dentro de un edificio.","Rentamos un *departamento* en el centro.","LA","Vida diaria","En España: piso"],
+["papa","potato","Tubérculo básico de la cocina.","Una porción de *papas* fritas, por favor.","LA","Comida y bebida","En España: patata"]
+];
+const slug = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const V = RAW.map(r => ({id:slug(r[0]), es:r[0], en:r[1], def:r[2], ej:r[3], reg:r[4], cat:r[5], par:r[6]}));
+const byId = Object.fromEntries(V.map(w => [w.id, w]));
+const zone = r => r==="ES" ? "es" : r==="ALL" ? "all" : "la";
+const ZONE = {es:"España", la:"Latinoamérica", all:"Todo el mundo hispano"};
+
+/* ---------- Estado ---------- */
+const KEY = "palabraViva.v1", DAY = 864e5, IV = [0,1,3,7,14,30], NEW_PER_DAY = 10, ROUND = 10;
+const dk = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+function fresh(){ return {cards:{}, xp:{}, quiz:{r:0,t:0}, region:{r:0,t:0}, diary:[], mission:null, goal:50, newDay:{d:"",n:0}}; }
+function load(){ let d = null; try { d = JSON.parse(localStorage.getItem(KEY)); } catch(e){} return Object.assign(fresh(), d || {}); }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+let S = load();
+
+/* ---------- Utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const markEx = s => esc(s).replace(/\*(.+?)\*/g, "<mark>$1</mark>");
+const plainEx = s => s.replace(/\*/g, "");
+const marked = w => (w.ej.match(/\*(.+?)\*/) || [,w.es])[1];
+const hash = s => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+function rng(seed){ return () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296; }
+function shuffle(a, r = Math.random){ a = a.slice(); for (let i = a.length-1; i > 0; i--) { const j = Math.floor(r()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const regTag = w => `<span class="reg ${zone(w.reg)}">${esc(REG[w.reg])}${w.reg!=="ALL"&&w.reg!=="LA"?` <code>${w.reg}</code>`:""}</span>`;
+const status = id => { const c = S.cards[id]; return !c ? "nueva" : c.box >= 3 ? "dominada" : "aprendiendo"; };
+const STATUS_TXT = {nueva:"Nueva", aprendiendo:"Aprendiendo", dominada:"Dominada"};
+const SPEAK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const tokens = s => norm(s).split(/[^a-z]+/).filter(t => t.length > 2);
+
+function speak(text, reg){
+  try {
+    const synth = window.speechSynthesis; if (!synth) return toast("Tu navegador no puede leer en voz alta");
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[¡!¿?]/g, "")); u.lang = LANG[reg] || "es-ES"; u.rate = .9;
+    const voices = synth.getVoices();
+    u.voice = voices.find(v => v.lang === u.lang) || voices.find(v => v.lang && v.lang.startsWith("es")) || null;
+    synth.speak(u);
+  } catch(e){ toast("Tu navegador no puede leer en voz alta"); }
+}
+try { speechSynthesis.getVoices(); } catch(e){}
+
+let toastT;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 1800); }
+function addXP(n, show = true){ const k = dk(); S.xp[k] = (S.xp[k] || 0) + n; save(); if (show) toast(`+${n} XP`); refreshHeader(); }
+
+function streak(){
+  let n = 0; const d = new Date();
+  if (!S.xp[dk(d)]) d.setDate(d.getDate()-1);
+  while (S.xp[dk(d)] > 0) { n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+const dueList = () => { const now = Date.now(); return V.filter(w => S.cards[w.id] && S.cards[w.id].due <= now); };
+
+/* ---------- Cabecera ---------- */
+function refreshHeader(){
+  $("#hdStreak").textContent = streak();
+  $("#hdXp").textContent = S.xp[dk()] || 0;
+  $("#dueBadge").textContent = dueList().length + newRoom();
+}
+function newRoom(){ return Math.min(Math.max(0, NEW_PER_DAY - (S.newDay.d === dk() ? S.newDay.n : 0)), V.filter(w => !S.cards[w.id]).length); }
+
+/* ---------- Pestañas ---------- */
+const TABS = ["inicio","tarjetas","quiz","donde","diario","vocabulario"];
+function show(tab){
+  if (!TABS.includes(tab)) tab = "inicio";
+  TABS.forEach(t => { $("#view-"+t).hidden = t !== tab; $("#t-"+t).setAttribute("aria-selected", t === tab); });
+  try { history.replaceState(null, "", "#"+tab); } catch(e){}
+  current = tab;
+  ({inicio:renderHome, tarjetas:startCards, quiz:()=>{ if(!qz.q) newRound(); }, donde:()=>{ if(!wg.w) newWhere(); }, diario:renderDiary, vocabulario:renderLib})[tab]();
+  window.scrollTo(0, 0);
+}
+let current = "inicio";
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) show(g.dataset.go); });
+
+/* ---------- Inicio ---------- */
+function wordOfDay(){ return V[hash(dk()) % V.length]; }
+function mission(){
+  if (!S.mission || S.mission.d !== dk()) {
+    const r = rng(hash("m"+dk()));
+    const learning = shuffle(V.filter(w => status(w.id) === "aprendiendo"), r);
+    const rest = shuffle(V.filter(w => status(w.id) !== "aprendiendo" && w.id !== wordOfDay().id), r);
+    S.mission = {d:dk(), ids:[...learning, ...rest].slice(0,3).map(w => w.id), done:[]};
+    save();
+  }
+  return S.mission;
+}
+const TIPS = ["Mándasela a un amigo por WhatsApp.","Dila en voz alta mientras cocinas o caminas.","Escríbela en tu lista de tareas de hoy.","Úsala para describir tu día por la noche.","Ponla en un comentario o mensaje de voz.","Piensa en qué situación de hoy encaja."];
+function renderHome(){
+  const now = new Date();
+  const fecha = now.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+  $("#today").textContent = fecha;
+  const h = now.getHours();
+  $("#greet").textContent = h < 13 ? "¡Buenos días!" : h < 20 ? "¡Buenas tardes!" : "¡Buenas noches!";
+  const xpToday = S.xp[dk()] || 0, goal = S.goal;
+  $("#greetSub").textContent = xpToday >= goal ? "Meta cumplida. Todo lo que hagas ahora es extra." : `Te faltan ${goal - xpToday} XP para tu meta de hoy. Una palabra nueva, úsala y repásala mañana.`;
+  $("#goalSel").value = String(goal);
+  const C = 226.2; $("#ringArc").setAttribute("stroke-dashoffset", C * (1 - Math.min(1, xpToday/goal)));
+  $("#ringVal").textContent = xpToday; $("#ringGoal").textContent = `de ${goal} XP`;
+
+  const st = streak();
+  $("#kStreak").innerHTML = `${st} <small>${st===1?"día":"días"}</small>`;
+  $("#kStreakS").textContent = S.xp[dk()] ? "Hoy ya cuenta" : st ? "Practica hoy para no perderla" : "Practica hoy para empezar";
+  const mastered = V.filter(w => status(w.id) === "dominada").length;
+  const learning = V.filter(w => status(w.id) === "aprendiendo").length;
+  $("#kMastered").innerHTML = `${mastered} <small>/ ${V.length}</small>`;
+  $("#kMasteredS").textContent = `${learning} en proceso`;
+  $("#kDue").textContent = dueList().length + newRoom();
+  const t = S.quiz.t + S.region.t, r = S.quiz.r + S.region.r;
+  $("#kAcc").textContent = t ? Math.round(100*r/t) + "%" : "–";
+  $("#kAccS").textContent = t ? `${r} de ${t} respuestas` : "Haz un quiz para medirla";
+
+  const w = wordOfDay();
+  $("#wodReg").innerHTML = regTag(w);
+  $("#wodWord").textContent = w.es;
+  $("#wodEn").textContent = w.en;
+  $("#wodDef").textContent = w.def;
+  $("#wodEx").innerHTML = markEx(w.ej);
+  $("#wodPar").innerHTML = `<b>${w.reg==="ALL"?"Uso":"Equivalente"}:</b> ${esc(w.par)}`;
+  $("#wodSpeak").innerHTML = SPEAK_SVG;
+  $("#wodSpeak").onclick = () => speak(plainEx(w.ej), w.reg);
+  $("#wodWrite").onclick = () => { diaryPreset = w.id; show("diario"); };
+
+  const m = mission();
+  $("#misCount").textContent = `${m.done.length}/3`;
+  const r2 = rng(hash("t"+dk()));
+  $("#mission").innerHTML = m.ids.map((id,i) => { const x = byId[id]; if (!x) return ""; const done = m.done.includes(id);
+    return `<label class="m-item ${done?"done":""}"><input type="checkbox" data-mid="${id}" ${done?"checked disabled":""}>
+      <div style="min-width:0"><div class="row" style="gap:8px"><span class="m-w">${esc(x.es)}</span>${regTag(x)}</div>
+      <div class="m-tip">${esc(x.en)} · ${esc(TIPS[Math.floor(r2()*TIPS.length)])}</div></div></label>`; }).join("");
+  $("#mission").querySelectorAll("input").forEach(cb => cb.addEventListener("change", () => {
+    if (!cb.checked) return; m.done.push(cb.dataset.mid); addXP(15); renderHome();
+  }));
+
+  // gráfico 7 días
+  const days = []; for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); days.push(d); }
+  const vals = days.map(d => S.xp[dk(d)] || 0);
+  const max = Math.max(goal * 1.15, ...vals);
+  const L = ["D","L","M","X","J","V","S"];
+  const plotH = 150 - 40; // espacio para etiquetas
+  $("#chart").innerHTML = `<div class="goal-line" style="bottom:${40 + plotH*goal/max}px"><span>meta ${goal}</span></div>` +
+    days.map((d,i) => `<div class="bar-col ${i===6?"today":""}" title="${d.toLocaleDateString("es-ES",{weekday:"long", day:"numeric"})}: ${vals[i]} XP"><span class="v">${vals[i]||""}</span><div class="b" style="height:${plotH*vals[i]/max}px"></div><span class="d">${i===6?"Hoy":L[d.getDay()]}</span></div>`).join("");
+  $("#weekTotal").textContent = vals.reduce((a,b)=>a+b,0) + " XP";
+
+  const zones = [["es","España","var(--cobalt)"],["la","Latinoamérica","var(--jade)"],["all","Común a todos","var(--saffron)"]];
+  $("#regionProg").innerHTML = zones.map(([z,name,col]) => {
+    const ws = V.filter(w => zone(w.reg) === z), m2 = ws.filter(w => status(w.id) === "dominada").length;
+    return `<div class="prog-row"><div class="lbl"><span>${name}</span><b>${m2} / ${ws.length}</b></div><div class="track"><i style="width:${100*m2/ws.length}%; background:${col}"></i></div></div>`;
+  }).join("");
+}
+$("#goalSel").addEventListener("change", e => { S.goal = +e.target.value; save(); renderHome(); });
+
+/* ---------- Tarjetas ---------- */
+let queue = [], cur = null, flipped = false, sesDone = 0, built = false;
+function buildQueue(extra = false){
+  const now = Date.now();
+  if (S.newDay.d !== dk()) S.newDay = {d:dk(), n:0};
+  const due = dueList().sort((a,b) => S.cards[a.id].due - S.cards[b.id].due);
+  const unseen = shuffle(V.filter(w => !S.cards[w.id]));
+  const fresh = extra ? [] : unseen.slice(0, newRoom());
+  queue = [...due, ...fresh];
+  if (extra) queue = shuffle(V.filter(w => status(w.id) !== "dominada")).slice(0, 10);
+  if (extra && !queue.length) queue = shuffle(V).slice(0, 10);
+  built = true;
+}
+function startCards(){ if (!built || (!cur && !queue.length)) buildQueue(); if (!cur) nextCard(); else renderCard(); renderBoxes(); }
+function nextCard(){ cur = queue.shift() || null; flipped = false; renderCard(); }
+function renderCard(){
+  $("#sesDone").textContent = sesDone; $("#sesLeft").textContent = queue.length + (cur ? 1 : 0);
+  const box = $("#flashWrap");
+  if (!cur) {
+    box.innerHTML = `<div class="panel empty"><span class="eyebrow">Todo al día</span><h3>¡Hecho por hoy!</h3>
+      <p class="muted">No te quedan tarjetas pendientes. Vuelve mañana o sigue practicando con palabras extra.</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" id="extraBtn">10 tarjetas extra</button><button class="btn" data-go="quiz">Ir al quiz</button></div></div>`;
+    $("#extraBtn").onclick = () => { buildQueue(true); nextCard(); };
+    return;
+  }
+  const w = cur, st = status(w.id);
+  box.innerHTML = `<div class="flash" id="flash" tabindex="0" role="button" aria-label="Voltear tarjeta">
+      <div class="row" style="justify-content:space-between">${regTag(w)}<span class="status ${st}">${STATUS_TXT[st]}</span></div>
+      <div class="row" style="justify-content:space-between; align-items:flex-start; flex-wrap:nowrap">
+        <div class="word-big" style="min-width:0">${esc(w.es)}</div>
+        <button class="btn speak" id="cardSpeak" aria-label="Escuchar">${SPEAK_SVG}</button>
+      </div>
+      ${flipped ? `<div class="back">
+        <p class="en" style="font-size:1.15rem">${esc(w.en)}</p>
+        <p class="def">${esc(w.def)}</p>
+        <p class="ex">${markEx(w.ej)}</p>
+        <p class="par"><b>${w.reg==="ALL"?"Uso":"Equivalente"}:</b> ${esc(w.par)}</p>
+      </div>` : `<p class="hint">¿Sabes qué significa? Piénsalo, dilo en voz alta y toca para ver la respuesta.</p>`}
+    </div>
+    ${flipped ? `<div class="rate">
+      <button class="btn again" data-q="0">Otra vez<small>la repito hoy</small></button>
+      <button class="btn good" data-q="1">Bien<small>${ivLabel(w,1)}</small></button>
+      <button class="btn easy" data-q="2">Fácil<small>${ivLabel(w,2)}</small></button></div>`
+    : `<div class="rate" style="grid-template-columns:1fr"><button class="btn primary" id="flipBtn">Ver respuesta</button></div>`}`;
+  $("#flash").addEventListener("click", e => { if (!e.target.closest("#cardSpeak")) flip(); });
+  $("#flash").addEventListener("keydown", e => { if (e.key === "Enter") flip(); });
+  $("#cardSpeak").onclick = () => speak(flipped ? plainEx(w.ej) : w.es, w.reg);
+  if ($("#flipBtn")) $("#flipBtn").onclick = flip;
+  box.querySelectorAll("[data-q]").forEach(b => b.onclick = () => rate(+b.dataset.q));
+}
+function ivLabel(w, q){ const b = Math.min(5, ((S.cards[w.id]||{}).box||0) + (q===2?2:1)); const d = IV[b]; return d === 1 ? "mañana" : `en ${d} días`; }
+function flip(){ if (!cur || flipped) return; flipped = true; renderCard(); }
+function rate(q){
+  const w = cur; let c = S.cards[w.id];
+  if (!c) { c = S.cards[w.id] = {box:0, due:0}; if (S.newDay.d !== dk()) S.newDay = {d:dk(), n:0}; S.newDay.n++; }
+  const before = c.box;
+  if (q === 0) { c.box = 0; c.due = Date.now(); queue.push(w); }
+  else { c.box = Math.min(5, c.box + (q===2?2:1)); c.due = Date.now() + IV[c.box]*DAY; }
+  sesDone++; save(); addXP(5, false);
+  if (before < 3 && c.box >= 3) toast(`«${w.es}» dominada`);
+  renderBoxes(); nextCard();
+}
+function renderBoxes(){
+  const counts = [0,0,0,0,0,0]; Object.values(S.cards).forEach(c => counts[c.box]++);
+  const unseen = V.filter(w => !S.cards[w.id]).length;
+  $("#boxes").innerHTML = counts.map((n,i) => `<div>${n}<small>${i===0?"Repetir":"Caja "+i}</small></div>`).join("") ;
+  $("#boxes").title = `${unseen} palabras sin empezar`;
+}
+document.addEventListener("keydown", e => {
+  if (current !== "tarjetas" || e.target.matches("input,textarea,select") || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.code === "Space") { e.preventDefault(); flip(); }
+  else if (flipped && ["1","2","3"].includes(e.key)) rate(+e.key - 1);
+  else if (e.key.toLowerCase() === "s" && cur) speak(cur.es, cur.reg);
+});
+
+/* ---------- Quiz ---------- */
+let qz = {n:0, res:[], q:null, answered:false};
+function distractors(w, n){
+  const tw = new Set(tokens(w.en));
+  return shuffle(V.filter(x => x.id !== w.id && !tokens(x.en).some(t => tw.has(t)))).slice(0, n);
+}
+function makeQ(){
+  const w = pick(V), others = distractors(w, 3), type = pick(["meaning","reverse","cloze"]);
+  const all = [w, ...others];
+  if (type === "meaning") return {w, label:"¿Qué significa?", prompt:esc(w.es), sentence:false, opts:shuffle(all.map(x=>x.en)), correct:w.en};
+  if (type === "reverse") return {w, label:"¿Qué palabra o expresión es?", prompt:esc(w.def), sentence:true, sub:esc(w.en), opts:shuffle(all.map(x=>x.es)), correct:w.es};
+  return {w, label:"Completa la frase", prompt:esc(w.ej).replace(/\*(.+?)\*/, '<span class="blank">____</span>'), sentence:true, opts:shuffle(all.map(marked)), correct:marked(w)};
+}
+function newRound(){ qz = {n:0, res:[], q:makeQ(), answered:false}; renderQuiz(); }
+function pips(res, n){ return `<div class="pips" aria-label="Pregunta ${n+1} de ${ROUND}">${Array.from({length:ROUND}, (_,i) => `<i class="${res[i]===true?"ok":res[i]===false?"ko":i===n?"now":""}"></i>`).join("")}</div>`; }
+function renderQuiz(){
+  const box = $("#quizBox");
+  if (qz.n >= ROUND) {
+    const ok = qz.res.filter(Boolean).length;
+    box.innerHTML = `<div class="empty"><span class="eyebrow">Ronda terminada</span><h3>${ok} de ${ROUND}</h3>
+      <p class="muted">${ok>=9?"¡Impresionante! Hablas como un local.":ok>=6?"¡Muy bien! Repasa las que fallaste en Tarjetas.":"Cada error es una palabra que ya no olvidarás. ¡Otra!"}</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" id="againQ">Otra ronda</button><button class="btn" data-go="tarjetas">Repasar tarjetas</button></div></div>`;
+    $("#againQ").onclick = newRound; return;
+  }
+  const q = qz.q;
+  box.innerHTML = `<div class="game-top"><span class="eyebrow">${q.label}</span>${pips(qz.res, qz.n)}</div>
+    <div class="q-prompt ${q.sentence?"sentence":""}">${q.prompt}</div>${q.sub?`<p class="en">${q.sub}</p>`:""}
+    <div class="opts">${q.opts.map((o,i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("")}</div>
+    <div id="qFb"></div>`;
+  box.querySelectorAll(".opt").forEach(b => b.onclick = () => answerQ(b));
+}
+function answerQ(b){
+  if (qz.answered) return; qz.answered = true;
+  const q = qz.q, val = q.opts[+b.dataset.i], ok = val === q.correct;
+  $("#quizBox").querySelectorAll(".opt").forEach(o => { o.disabled = true; if (q.opts[+o.dataset.i] === q.correct) o.classList.add("right"); });
+  if (!ok) b.classList.add("wrong");
+  qz.res.push(ok); S.quiz.t++; if (ok) { S.quiz.r++; addXP(10); } else save();
+  const w = q.w;
+  $("#qFb").innerHTML = `<div class="feedback ${ok?"ok":"ko"}"><strong>${ok?"¡Correcto!":"Casi."} ${esc(w.es)} = ${esc(w.en)}</strong>
+    <p>${markEx(w.ej)}</p><div class="row" style="justify-content:space-between">${regTag(w)}<div class="row"><button class="btn sm speak" id="qSpeak" aria-label="Escuchar">${SPEAK_SVG}</button><button class="btn primary sm" id="qNext">${qz.n+1>=ROUND?"Ver resultado":"Siguiente"}</button></div></div></div>`;
+  $("#qSpeak").onclick = () => speak(plainEx(w.ej), w.reg);
+  $("#qNext").onclick = () => { qz.n++; qz.q = makeQ(); qz.answered = false; renderQuiz(); };
+  $("#qNext").focus();
+}
+
+/* ---------- ¿Dónde se dice? ---------- */
+let wg = {w:null, n:0, res:[], answered:false};
+const wherePool = () => V.filter(w => w.reg !== "ALL");
+function newWhere(){ wg = {w:pick(wherePool()), n:0, res:[], answered:false}; renderWhere(); }
+function renderWhere(){
+  const box = $("#whereBox");
+  if (wg.n >= ROUND) {
+    const ok = wg.res.filter(Boolean).length;
+    box.innerHTML = `<div class="empty"><span class="eyebrow">Fin del viaje</span><h3>${ok} de ${ROUND}</h3>
+      <p class="muted">${ok>=8?"Tienes oído de viajero: distingues la orilla de cada palabra.":"Fíjate en los equivalentes: son la clave para entender a todos."}</p>
+      <button class="btn primary" id="againW">Otro viaje</button></div>`;
+    $("#againW").onclick = newWhere; return;
+  }
+  const w = wg.w;
+  box.innerHTML = `<div class="game-top"><span class="eyebrow">¿Dónde lo oirías?</span>${pips(wg.res, wg.n)}</div>
+    <div class="row" style="justify-content:space-between; flex-wrap:nowrap; align-items:flex-start"><div class="q-prompt" style="min-width:0">${esc(w.es)}</div><button class="btn speak" id="wSpeak" aria-label="Escuchar">${SPEAK_SVG}</button></div>
+    <p class="ex">${esc(plainEx(w.ej))}</p>
+    <div class="where">
+      <button class="opt" data-z="es">España<span>Madrid, Sevilla, Barcelona…</span></button>
+      <button class="opt" data-z="la">Latinoamérica<span>México, Bogotá, Buenos Aires…</span></button>
+    </div><div id="wFb"></div>`;
+  $("#wSpeak").onclick = () => speak(w.es, w.reg);
+  box.querySelectorAll(".where .opt").forEach(b => b.onclick = () => {
+    if (wg.answered) return; wg.answered = true;
+    const right = zone(w.reg), ok = b.dataset.z === right;
+    box.querySelectorAll(".where .opt").forEach(o => { o.disabled = true; if (o.dataset.z === right) o.classList.add("right"); });
+    if (!ok) b.classList.add("wrong");
+    wg.res.push(ok); S.region.t++; if (ok) { S.region.r++; addXP(5); } else save();
+    $("#wFb").innerHTML = `<div class="feedback ${ok?"ok":"ko"}"><strong>${ok?"¡Exacto!":"¡Ojo!"} Se dice en ${esc(REG[w.reg])}.</strong>
+      <p><i>${esc(w.en)}</i> · ${esc(w.def)}</p><p class="par"><b>Equivalente:</b> ${esc(w.par)}</p>
+      <div class="row" style="justify-content:flex-end"><button class="btn primary sm" id="wNext">${wg.n+1>=ROUND?"Ver resultado":"Siguiente"}</button></div></div>`;
+    $("#wNext").onclick = () => { wg.n++; let nx; do { nx = pick(wherePool()); } while (nx.id === w.id); wg.w = nx; wg.answered = false; renderWhere(); };
+    $("#wNext").focus();
+  });
+}
+
+/* ---------- Diario ---------- */
+let diaryPreset = null;
+const PROMPTS = ["Cuenta algo que hiciste hoy.","Describe a alguien de tu trabajo o de tu familia.","Escribe el mensaje que mandarías a un amigo esta noche.","¿Qué planes tienes para el fin de semana?","Cuenta algo que te sorprendió esta semana.","Describe tu comida favorita."];
+function renderDiary(){
+  const sel = $("#diaryWord");
+  if (!sel.options.length) sel.innerHTML = V.slice().sort((a,b)=>a.es.localeCompare(b.es,"es")).map(w => `<option value="${w.id}">${esc(w.es)} · ${esc(REG[w.reg])}</option>`).join("");
+  if (diaryPreset) { sel.value = diaryPreset; diaryPreset = null; } else if (!sel.dataset.touched) sel.value = wordOfDay().id;
+  diaryPrompt();
+  const list = S.diary.slice().reverse();
+  $("#diaryCount").textContent = `${list.length} ${list.length===1?"frase":"frases"}`;
+  $("#entries").innerHTML = list.length ? list.map(e => { const w = byId[e.w];
+    return `<div class="entry"><div class="meta"><span>${w?regTag(w):""} <b style="color:var(--ink)">${esc(w?w.es:e.w)}</b></span><span>${new Date(e.t).toLocaleDateString("es-ES",{day:"numeric", month:"short"})} <button class="btn sm ghost" data-del="${e.t}" aria-label="Borrar frase">Borrar</button></span></div><p>${esc(e.text)}</p></div>`; }).join("")
+    : `<div class="empty"><h3>Tu diario empieza aquí</h3><p class="muted">Escribe una frase sobre tu vida usando una palabra nueva. Así pasa de la memoria a tu día a día.</p>
+       <div class="entry" style="text-align:left; opacity:.75"><div class="meta"><span><span class="reg es">Ejemplo</span> <b style="color:var(--ink)">quedar</b></span></div><p>He quedado con Laura para correr el domingo por la mañana.</p></div></div>`;
+  $("#entries").querySelectorAll("[data-del]").forEach(b => b.onclick = () => { S.diary = S.diary.filter(e => String(e.t) !== b.dataset.del); save(); renderDiary(); });
+}
+function diaryPrompt(){
+  const w = byId[$("#diaryWord").value]; if (!w) return;
+  $("#diaryPrompt").innerHTML = `<b>${esc(w.es)}</b> <span class="en">(${esc(w.en)})</span> · ${esc(w.def)}<br><span class="muted" style="font-size:.88rem">Idea: ${esc(PROMPTS[hash(w.id+dk()) % PROMPTS.length])} Modelo: ${esc(plainEx(w.ej))}</span>`;
+}
+$("#diaryWord").addEventListener("change", e => { e.target.dataset.touched = "1"; diaryPrompt(); });
+$("#diaryForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = $("#diaryText").value.trim(), w = byId[$("#diaryWord").value], msg = $("#diaryMsg");
+  if (text.length < 8) { msg.textContent = "Escribe una frase completa (mínimo 8 letras)."; return; }
+  const keys = tokens(w.es).filter(t => !["estar","ser","tener","una","que","los","las","del","con"].includes(t));
+  const t = norm(text);
+  const used = (keys.length ? keys : tokens(w.es)).some(k => t.includes(k.slice(0, Math.max(3, k.length - 2))));
+  S.diary.push({t:Date.now(), w:w.id, text});
+  if (used) { addXP(20); msg.textContent = `¡Bien usada! «${w.es}» ya forma parte de tu vida.`; }
+  else { save(); msg.textContent = `Guardada. Prueba a incluir «${w.es}» para ganar XP.`; }
+  $("#diaryText").value = ""; renderDiary();
+});
+
+/* ---------- Vocabulario ---------- */
+const CATS = [...new Set(V.map(w => w.cat))].sort((a,b)=>a.localeCompare(b,"es"));
+$("#fCat").innerHTML = `<option value="">Todas las categorías</option>` + CATS.map(c => `<option>${esc(c)}</option>`).join("");
+["#fSearch","#fReg","#fCat","#fStat"].forEach(s => $(s).addEventListener("input", renderLib));
+function renderLib(){
+  const q = norm($("#fSearch").value.trim()), r = $("#fReg").value, c = $("#fCat").value, st = $("#fStat").value;
+  const list = V.filter(w => (!q || norm(w.es+" "+w.en+" "+w.def+" "+w.par).includes(q)) && (!r || zone(w.reg)===r) && (!c || w.cat===c) && (!st || status(w.id)===st));
+  $("#libCount").textContent = `${list.length} de ${V.length} palabras y expresiones`;
+  $("#lib").innerHTML = list.length ? list.map(w => { const s = status(w.id); return `<article class="card">
+      <div class="hd"><div class="w">${esc(w.es)}</div><button class="btn speak" data-say="${w.id}" aria-label="Escuchar ${esc(w.es)}">${SPEAK_SVG}</button></div>
+      <p class="en">${esc(w.en)}</p><p>${esc(w.def)}</p><p class="ex">${markEx(w.ej)}</p>
+      <p class="par muted">${esc(w.par)}</p>
+      <div class="ft">${regTag(w)}<span class="status ${s}">${STATUS_TXT[s]}</span></div></article>`; }).join("")
+    : `<div class="panel empty" style="grid-column:1/-1"><h3>Sin resultados</h3><p class="muted">Prueba con otra palabra o quita algún filtro.</p></div>`;
+  $("#lib").querySelectorAll("[data-say]").forEach(b => b.onclick = () => { const w = byId[b.dataset.say]; speak(w.es + ". " + plainEx(w.ej), w.reg); });
+}
+
+/* ---------- Reinicio ---------- */
+let resetArm = null;
+$("#resetBtn").addEventListener("click", e => {
+  const b = e.currentTarget;
+  if (!resetArm) { b.textContent = "¿Seguro? Pulsa otra vez para borrar todo"; resetArm = setTimeout(() => { b.textContent = "Borrar mi progreso"; resetArm = null; }, 4000); return; }
+  clearTimeout(resetArm); resetArm = null; b.textContent = "Borrar mi progreso";
+  S = fresh(); save(); built = false; cur = null; queue = []; sesDone = 0; refreshHeader(); show(current); toast("Progreso borrado");
+});
+
+/* ---------- Arranque ---------- */
+refreshHeader();
+show((location.hash || "#inicio").slice(1));
+</script>
+</body>
+</html>

@@ -55,3 +55,11 @@ docker run --rm -it -p 127.0.0.1:8080:8080 --entrypoint bash -v "$(pwd)/app:/app
 ```
 
 You will then need to manually run the two commands within `/entrypoint.sh`. The first starts the DB in the background whereas the second compiles and runs the application. Typically a container shouldn't have multiple services but this was done for convenience.
+## Palabra Viva (Spanish vocabulary dashboard)
+
+A self-contained, interactive dashboard (in Spanish) for learning everyday vocabulary and expressions from Spain and Latin America:
+flashcards with spaced repetition, quizzes, a "¿Dónde se dice?" region game, a daily "use it today" mission, and a sentence diary.
+Progress is saved in the browser (`localStorage`).
+
+* Served by the app at `/resources/espanol/index.html`
+* Or open `app/src/main/webapp/resources/espanol/index.html` directly in a browser.
